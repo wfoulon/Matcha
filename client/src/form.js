@@ -7,6 +7,7 @@ class FormsPage extends React.Component {
     constructor (props) {
         super(props)
         this.state = {
+            uname: '',
             lname: '',
             fname: '',
             mail: '',
@@ -24,8 +25,8 @@ class FormsPage extends React.Component {
     }
     // Au moment ou on appuie sur register on recupère le tableau associé aux inputs
     onSubmit = (e) => {
-        const {lname, fname, mail, pwd, cpwd} = this.state
-        axios.post('/register', {lname, fname, mail, pwd, cpwd})
+        const {uname, lname, fname, mail, pwd, cpwd} = this.state
+        axios.post('/register', {uname, lname, fname, mail, pwd, cpwd})
             .then((result) => {
                 console.log(result.data)
             })
@@ -40,10 +41,11 @@ class FormsPage extends React.Component {
 {/*                                 <form> */}
                                     <p className="h4 text-center py-4">Sign up</p>
                                     <div className="grey-text">
+                                        <Input name='uname' label="Username" icon="user" group type="text" validate error="wrong" success="right" onChange={this.onChange} />
                                         <Input name='lname' label="Last name" icon="user" group type="text" validate error="wrong" success="right" onChange={this.onChange}/>
                                         <Input name='fname' label="Fist name" icon="user" group type="text" validate error="wrong" success="right" onChange={this.onChange}/>
                                         <Input name='mail' label="Your email" icon="envelope" group type="email" validate error="wrong" success="right" onChange={this.onChange}/>
-                                        <Input name='pwd' label="Password" icon="lock" group type="text" validate error="wrong" success="right" onChange={this.onChange}/>
+                                        <Input name='pwd' label="Password" icon="lock" group type="password" validate error="wrong" success="right" onChange={this.onChange}/>
                                         <Input name='cpwd' label="Confirm your password" icon="exclamation-triangle" group type="password" validate onChange={this.onChange}/>
                                     </div>
                                     <div className="text-center py-4 mt-3">
