@@ -1,9 +1,13 @@
 import React from 'react';
 import { Container, Row, Col, Input, Button, Card, CardBody } from 'mdbreact'
-import './form.css'
+import './styles/form.css'
+import 'font-awesome/css/font-awesome.min.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'mdbreact/dist/css/mdb.css'
 import axios from 'axios'
+// import Header from './header'
 
-class FormsPage extends React.Component {
+class Inscription extends React.Component {
     constructor (props) {
         super(props)
         this.state = {
@@ -51,6 +55,10 @@ class FormsPage extends React.Component {
                                     <div className="text-center py-4 mt-3">
                                         <Button color="cyan" onClick={this.onSubmit}>Register</Button>
                                     </div>
+                                    <div className="text-center py-4 mt-3">
+                                        <p>Deja inscrit</p>
+                                        <Button href="/connexion" color="cyan">Connexion</Button>
+                                    </div>
 {/*                                 </form> */}
                             </CardBody>
                         </Card>
@@ -61,4 +69,4 @@ class FormsPage extends React.Component {
     }
 };
 
-export default FormsPage;
+export default Inscription;

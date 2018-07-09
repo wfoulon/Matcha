@@ -1,27 +1,26 @@
-// importer nos dépendances, packages
-import React, { Component } from 'react' /* = var react = require('react') */
-import ReactDOM from 'react-dom'
-import './index.css'
-import logo from './logo.svg'
-import 'font-awesome/css/font-awesome.min.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'mdbreact/dist/css/mdb.css'
-import FormsPage from './form.js'
+import React from 'react'
+import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { render } from 'react-dom'
+import Inscription from './inscription'
+import Header from './header'
+import Connexion from './connexion'
+import Test from './test'
 
-class App extends Component {
-    render() {
-        return (
-            <div className="App">
-                <header className="App-header">
-                    <img src={logo} className="App-logo" alt="logo" />
-                    <h1 className="App-title">Welcome to Matcha</h1>
-                </header>
-                <div>
-                    <FormsPage />
-                </div>
-            </div>        
-        )
-    }
-}
-//on vient l'insérer dans notre html
-ReactDOM.render(<App />, document.getElementById('root'))
+const Root = () => (
+    <div>
+        <Header />
+    <Switch>
+        <Route exact path='/' component={Inscription} />
+        <Route exact path='/connexion' component={Connexion} />
+        <Route exact path='/test' component={Test} /> 
+    </Switch>
+    </div>
+)
+
+render(
+    <div>
+        <BrowserRouter>
+            <Root />
+        </BrowserRouter>
+    </div>
+  , document.getElementById('root'))
