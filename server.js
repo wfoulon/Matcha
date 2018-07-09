@@ -15,7 +15,7 @@ app.use(bodyParser.json({ limit: '10Mb' }))
 
 var con = mysql.createConnection({
     host: "localhost",
-    user: "matcha",
+    user: "localhost",
     password: "root42",
     multipleStatements: true
 })
@@ -31,7 +31,7 @@ con.connect(function(err) {
 })
 
 app.post('/register', (req, res) => {
-    if (!req.body) {
+    if (req.body) {
         let uname = ent.encode(req.body.uname)
         let lname = ent.encode(req.body.lname)
         let fname = ent.encode(req.body.fname)

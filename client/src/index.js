@@ -4,7 +4,7 @@ import { render } from 'react-dom'
 import Inscription from './inscription'
 import Header from './header'
 import Connexion from './connexion'
-import Test from './test'
+/* import Test from './test' */
 
 const Root = () => (
     <div>
@@ -12,7 +12,7 @@ const Root = () => (
     <Switch>
         <Route exact path='/' component={Inscription} />
         <Route exact path='/connexion' component={Connexion} />
-        <Route exact path='/test' component={Test} /> 
+{/*         <Route exact path='/test' component={Test} />  */}
     </Switch>
     </div>
 )
