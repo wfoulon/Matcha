@@ -56,6 +56,7 @@ class Connexion extends Component {
     }
 
     onSubmit = (e) => {
+        localStorage.clear()
         const validation = this.validator.validate(this.state)
         this.setState({ validation })
         this.submitted = true
@@ -63,7 +64,12 @@ class Connexion extends Component {
             const {login, pwd} = this.state
             axios.post('/connexion', {login, pwd})
                 .then((result) => {
-                    console.log(result.data)
+                    console.log(result.data[0])
+                    localStorage.setItem('login', result.data[0].uname)
+                    localStorage.setItem('id', result.data[0].id)
+                    localStorage.setItem('lname', result.data[0].lname)
+                    localStorage.setItem('fname', result.data[0].fname)
+                    this.props.history.push('/test')
                 })
             }
     }
@@ -76,7 +82,6 @@ class Connexion extends Component {
                 <Col md="6">
                     <Card>
                         <CardBody>
-            {/*                                 <form> */}
                                 <p className="h4 text-center py-4">Sign in</p>
                                 <div className="grey-text">
                                     <div>                                        
@@ -95,7 +100,6 @@ class Connexion extends Component {
                                     <p>Not registered yet?</p>
                                     <Button href="/" color="cyan">Register</Button>
                                 </div>
-            {/*                                 </form> */}
                         </CardBody>
                     </Card>
                 </Col>

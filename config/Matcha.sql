@@ -8,5 +8,8 @@ CREATE TABLE IF NOT EXISTS `users`(
     lname VARCHAR(255) NOT NULL,
     fname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
+    age VARCHAR(255) NULL,
+    sexual_orientation VARCHAR(255) NULL,
+    gender VARCHAR(255) NULL,
     password VARCHAR(255) NOT NULL
 );

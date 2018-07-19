@@ -119,7 +119,7 @@ class Inscription extends React.Component {
             const {uname, lname, fname, mail, pwd, cpwd} = this.state
             axios.post('/register', {uname, lname, fname, mail, pwd, cpwd})
                 .then((result) => {
-                    console.log(result.data)            
+                    this.props.history.push('./connexion')        
             })
         }    
     }
@@ -131,7 +131,6 @@ class Inscription extends React.Component {
                     <Col md="6">
                         <Card>
                             <CardBody>
-{/*                                 <form> */}
                                     <p className="h4 text-center py-4">Sign up</p>
                                     <div className="grey-text">
                                         <div>
@@ -163,10 +162,9 @@ class Inscription extends React.Component {
                                         <Button color="cyan" onClick={this.onSubmit}>Register</Button>
                                     </div>
                                     <div className="text-center py-4 mt-3">
-                                        <p>Already register</p>
+                                        <p>Already register ?</p>
                                         <Button href="/connexion" color="cyan">Connexion</Button>
                                     </div>
-{/*                                 </form> */}
                             </CardBody>
                         </Card>
                     </Col>
