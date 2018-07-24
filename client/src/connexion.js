@@ -101,8 +101,7 @@ class Connexion extends Component {
                                     <Button color="cyan" onClick={this.onSubmit}>Connexion</Button>
                                 </div>
                                 <div className="text-center py-4 mt-3">
-                                    <p>Not registered yet?</p>
-                                    <Button href="/" color="cyan">Register</Button>
+                                    <Button href="/" color="cyan">Not Register ?</Button>
                                 </div>
                                 <div className="text-center py-4 mt-3">
                                     <Button href="/forgot_password" color="cyan">Forgot Password ?</Button>

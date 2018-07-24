@@ -14,7 +14,7 @@ app.use(bodyParser.json({ limit: '10Mb' }))
 
 var con = mysql.createConnection({
   host: 'localhost',
-  user: 'matcha',
+  user: 'localhost',
   password: 'root42',
   multipleStatements: true
 })

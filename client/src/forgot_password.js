@@ -88,6 +88,9 @@ class Forgot extends Component {
                                 <div className="text-center py-4 mt-3">
                                     <Button color="cyan" onClick={this.onSubmit}>Send email</Button>
                                 </div>
+                                <div className="text-center py-4 mt-3">
+                                    <Button color="cyan" href='/connexion'>back</Button>
+                                </div>
                             </CardBody>
                         </Card>
                     </Col>
