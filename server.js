@@ -1,5 +1,4 @@
 const express = require('express')
-// const path = require('path')
 const app = express()
 const port = process.env.PORT || 5000
 const mysql = require('mysql')
@@ -7,7 +6,7 @@ const bodyParser = require('body-parser')
 const ent = require('ent')
 const crypto = require('crypto')
 const fs = require('fs')
-// const empty = require('is-empty')
+const nodemailer = require('nodemailer')
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
 app.use(bodyParser.json({ limit: '10Mb' }))
@@ -23,44 +22,33 @@ var con = mysql.createConnection({
 let db = fs.readFileSync('./config/Matcha.sql', 'UTF-8')
 con.connect(function (err) {
   if (err) throw err
-  console.log('Connected!')
   con.query(db, (err, resp) => {
     if (err) throw err
-    console.log('Database created')
   })
 })
 
 app.post('/register', (req, res) => {
-  if (req.body) {
-    let uname = ent.encode(req.body.uname)
-    let lname = ent.encode(req.body.lname)
-    let fname = ent.encode(req.body.fname)
-    let mail = ent.encode(req.body.mail)
-    if (req.body.pwd === req.body.cpwd) {
-      let pwd = crypto.createHash('whirlpool').update(req.body.pwd).digest('hex')
-      let req_user = 'INSERT INTO users(uname, lname, fname, email, password) VALUES(?, ?, ?, ?, ?)'
-      con.query(req_user, [uname, lname, fname, mail, pwd], (err, res) => {
-        if (err) throw err
-        console.log('Data insert')
-      })
-      res.end()
-    } else {
-      res.send(uname)
-      res.end()
-    }
-  } else {
-    console.log('lol')
-  }
+  let uname = ent.encode(req.body.uname)
+  let lname = ent.encode(req.body.lname)
+  let fname = ent.encode(req.body.fname)
+  let mail = ent.encode(req.body.mail)
+  let pwd = crypto.createHash('whirlpool').update(req.body.pwd).digest('hex')
+  let sql = 'INSERT INTO users(uname, lname, fname, email, password) VALUES(?, ?, ?, ?, ?)'
+  con.query(sql, [uname, lname, fname, mail, pwd], (err, res) => {
+    if (err) throw err
+  })
+  res.end()
 })
 
 app.post('/connexion', (req, res) => {
   let login = ent.encode(req.body.login)
   let pwd = crypto.createHash('whirlpool').update(req.body.pwd).digest('hex')
-  let req_user = 'SELECT * FROM users WHERE uname = ? AND password = ?'
-  con.query(req_user, [login, pwd], (err, res2) => {
+  let sql = 'SELECT * FROM users WHERE uname = ? AND password = ?'
+  con.query(sql, [login, pwd], (err, res2) => {
     if (err) throw err
-    res.send(res2)
-    console.log(res2[0])
+    if (res2.length === 1) {
+      res.send(res2)
+    }
     res.end()
   })
 })
@@ -70,8 +58,8 @@ app.post('/changepassword', (req, res) => {
   let pwd = crypto.createHash('whirlpool').update(req.body.pwd).digest('hex')
   let newpwd = crypto.createHash('whirlpool').update(req.body.newpwd).digest('hex')
   let cnewpwd = crypto.createHash('whirlpool').update(req.body.cnewpwd).digest('hex')
-  let req_user = 'SELECT * FROM users WHERE id = ?'
-  con.query(req_user, [id], (err, res) => {
+  let sql = 'SELECT * FROM users WHERE id = ?'
+  con.query(sql, [id], (err, res) => {
     if (err) throw err
     if (pwd === res[0].password && newpwd === cnewpwd) {
       let req_user2 = 'UPDATE users SET password = ? WHERE id = ?'
@@ -90,9 +78,86 @@ app.post('/profile', (req, res) => {
   let age = ent.encode(req.body.age)
   let gender = ent.encode(req.body.gender)
   let sexe = ent.encode(req.body.sexual_orientation)
-  let req_user = 'UPDATE users SET lname = ?, fname = ?, age = ?, gender = ?, sexual_orientation = ? WHERE id = ?'
-  con.query(req_user, [lname, fname, age, gender, sexe, id], (err, res) => {
+  let sql = 'UPDATE users SET lname = ?, fname = ?, age = ?, gender = ?, sexual_orientation = ? WHERE id = ?'
+  con.query(sql, [lname, fname, age, gender, sexe, id], (err, res) => {
     if (err) throw err
-    console.log('okey')
   })
+})
+
+app.post('/changemail', (req, res) => {
+  let mail = ent.encode(req.body.newemail)
+  let pwd = crypto.createHash('whirlpool').update(req.body.pwd).digest('hex')
+  let uname = ent.encode(req.body.uname)
+  let sql = 'SELECT * FROM users WHERE uname = ? AND password = ?'
+  con.query(sql, [uname, pwd], (err, res) => {
+    if (err) throw err
+    let id = res[0].id
+    let sql = 'UPDATE users SET email = ? WHERE id = ?'
+    con.query(sql, [mail, id], (err, res) => {
+      if (err) throw err
+    })
+  })
+  res.end()
+})
+
+app.post('/deleteaccount', (req, res) => {
+  let uname = ent.encode(req.body.uname)
+  let pwd = crypto.createHash('whirlpool').update(req.body.pwd).digest('hex')
+  let sql = 'DELETE FROM users WHERE uname = ? AND password = ?'
+  con.query(sql, [uname, pwd], (err, res) => {
+    if (err) throw err
+    res.send(res)
+  })
+  res.end()
+})
+
+app.post('/forgot', (req, res) => {
+  let login = ent.encode(req.body.login)
+  let email = ent.encode(req.body.email)
+  let req_user = 'SELECT * FROM users WHERE uname = ? AND email = ?'
+  con.query(req_user, [login, email], (err, res) => {
+    if (err) throw err
+    if (login === res[0].uname && email === res[0].email) {
+      var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'willfln34@gmail.com',
+          pass: 'matcha1234'
+        }
+      })
+      let mail = {
+        from: 'Matcha@gmail.com',
+        to: res[0].email,
+        subject: 'Reset your password',
+        html: '<p>Hello ' + res[0].uname + '</p><br><p>To change your password please click on the link below:</p><br><a href="http://localhost:3000/reset_password">Change password</a>'
+      }
+      transporter.sendMail(mail, function (error, info) {
+        if (error) {
+          console.log('Email has not been sent')
+        } else {
+          console.log('Email sent')
+        }
+      })
+      transporter.close()
+    }
+  })
+  res.end()
+})
+
+app.post('/reset', (req, res) => {
+  let login = ent.encode(req.body.login)
+  let pwd = crypto.createHash('whirlpool').update(req.body.pwd).digest('hex')
+  let cpwd = crypto.createHash('whirlpool').update(req.body.cpwd).digest('hex')
+  let req_user = 'SELECT * FROM users WHERE uname = ?'
+  con.query(req_user, [login], (err, res) => {
+    if (err) throw err
+    if (login === res[0].uname) {
+      let req_user2 = 'UPDATE users SET password = ? WHERE uname = ?'
+      con.query(req_user2, [cpwd, login], (err, res) => {
+        if (err) throw err
+        console.log('Password updated')
+      })
+    }
+  })
+  res.end()
 })

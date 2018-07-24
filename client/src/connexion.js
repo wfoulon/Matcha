@@ -8,71 +8,75 @@ import 'mdbreact/dist/css/mdb.css'
 import FormValidator from './FormValidator.js'
 
 class Connexion extends Component {
-    constructor (props) {
-        super(props)
-        this.validator = new FormValidator([
-            {
-                field: 'login',
-                method: 'isEmpty',
-                validWhen: false,
-                message: 'Username is required.'
-            },
-            {
-                field: 'login',
-                method: 'matches',
-                args: [/^[a-zA-Z0-9]+([a-zA-Z0-9](_|-| )[a-zA-Z0-9])*[a-zA-Z0-9]+$/],
-                validWhen: true,
-                message: 'Username not register yet'
-            },
-            {
-                field: 'pwd',
-                method: 'isEmpty',
-                validWhen: false,
-                message: 'Password is required.'
-            },
-            {
-                field: 'pwd',
-                method: 'matches',
-                args: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/],
-                validWhen: true,
-                message: 'Wrong password'
-            },
-        ])
+  constructor (props) {
+    super(props)
+    this.validator = new FormValidator([
+    {
+      field: 'login',
+      method: 'isEmpty',
+      validWhen: false,
+      message: 'Username is required.'
+    },
+    {
+      field: 'login',
+      method: 'matches',
+      args: [/^[a-zA-Z0-9]+([a-zA-Z0-9](_|-| )[a-zA-Z0-9])*[a-zA-Z0-9]+$/],
+      validWhen: true,
+      message: 'Username not register yet'
+    },
+    {
+      field: 'pwd',
+      method: 'isEmpty',
+      validWhen: false,
+      message: 'Password is required.'
+    },
+    {
+      field: 'pwd',
+      method: 'matches',
+      args: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/],
+      validWhen: true,
+      message: 'Wrong password'
+    },
+    ])
+    this.state = {
+      login: '',
+      pwd: '',
+      validation: this.validator.valid(),
+    }
+    this.onChange = this.onChange.bind(this)
+    this.onSubmit = this.onSubmit.bind(this)
+    this.submitted = false
+  }
 
-        this.state = {
-            login: '',
-            pwd: '',
-            validation: this.validator.valid(),
+  onChange = (e) => {
+    this.setState( {
+      [e.target.name]: e.target.value
+    })
+  }
+
+  onSubmit = (e) => {
+    localStorage.clear()
+    const validation = this.validator.validate(this.state)
+    this.setState({ validation })
+    this.submitted = true
+    if (validation.isValid){
+      const {login, pwd} = this.state
+      axios.post('/connexion', {login, pwd})
+      .then((result) => {
+        console.log(result.data)
+        if(result.data.length === 1) {
+        localStorage.setItem('login', result.data[0].uname)
+        localStorage.setItem('id', result.data[0].id)
+        localStorage.setItem('lname', result.data[0].lname)
+        localStorage.setItem('fname', result.data[0].fname)
+        localStorage.setItem('gender', result.data[0].gender)
+        localStorage.setItem('sex', result.data[0].sexual_orientation)
+        this.props.history.push('/test')
         }
-        this.onChange = this.onChange.bind(this)
-        this.onSubmit = this.onSubmit.bind(this)
-        this.submitted = false
+        else console.log('empty')
+      })
     }
-
-    onChange = (e) => {
-        this.setState( {
-            [e.target.name]: e.target.value
-        })
-    }
-
-    onSubmit = (e) => {
-        localStorage.clear()
-        const validation = this.validator.validate(this.state)
-        this.setState({ validation })
-        this.submitted = true
-        if (validation.isValid){
-            const {login, pwd} = this.state
-            axios.post('/connexion', {login, pwd})
-                .then((result) => {
-                    console.log(result.data[0])
-                    localStorage.setItem('login', result.data[0].uname)
-                    localStorage.setItem('id', result.data[0].id)
-                    localStorage.setItem('lname', result.data[0].lname)
-                    localStorage.setItem('fname', result.data[0].fname)
-                    this.props.history.push('/test')
-                })
-            }
-    }
+  }
 
     render () {
         let validation = this.submitted ? this.validator.validate(this.state) : this.state.validation
@@ -99,6 +103,9 @@ class Connexion extends Component {
                                 <div className="text-center py-4 mt-3">
                                     <p>Not registered yet?</p>
                                     <Button href="/" color="cyan">Register</Button>
+                                </div>
+                                <div className="text-center py-4 mt-3">
+                                    <Button href="/forgot_password" color="cyan">Forgot Password ?</Button>
                                 </div>
                         </CardBody>
                     </Card>
