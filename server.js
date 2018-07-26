@@ -1,3 +1,7 @@
+// import corsPrefetch from 'cors-prefetch-middleware'
+// import imagesUpload from 'images-upload-middleware'
+// const corsPrefetch = require('cors-prefetch-middleware')
+// const imagesUpload = require('images-upload-middleware')
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 5000
@@ -11,10 +15,11 @@ const nodemailer = require('nodemailer')
 app.listen(port, () => console.log(`Listening on port ${port}`))
 app.use(bodyParser.json({ limit: '10Mb' }))
   .use(bodyParser.urlencoded({ extended: false }))
+  // .use(corsPrefetch)
 
 var con = mysql.createConnection({
   host: 'localhost',
-  user: 'localhost',
+  user: 'matcha',
   password: 'root42',
   multipleStatements: true
 })
@@ -161,3 +166,41 @@ app.post('/reset', (req, res) => {
   })
   res.end()
 })
+// app.use('/static', express.static('./server/static'))
+
+
+// app.post('/multiple', imagesUpload(
+//   './server/static/multipleFiles',
+//   'http://localhost:3000/static/multipleFiles',
+//   true
+// ))
+
+app.post('/addtags', (req, res) => {
+  // console.log(req.body)
+  // console.log(req.body.tag.text)
+  let tags = ent.encode(req.body.tag.text)
+  let id = req.body.id
+  // let sql = 'UPDATE profil_user SET tag = ? WHERE uid = ?'
+  let sql = 'INSERT INTO profil_user(uid, tag) VALUES(?, ?)'
+  con.query(sql, [id, tags], (err, res) => {
+    if (err) throw err
+    // console.log('done')
+  })
+  res.end()
+})
+
+// app.post('/deltags', (req, res) => {
+//   // console.log(req.body)
+//   // console.log(req.body)
+//   // console.log(req.body.tag.text)
+//   console.log(req.body.tags.id)
+//   let tags = ent.encode(req.body.tags.text)
+//   let id = req.body.id
+//   // let sql = 'UPDATE profil_user SET tag = ? WHERE uid = ?'
+//   let sql = 'DELETE FROM profil_user WHERE uid = ? AND tag = ?'
+//   con.query(sql, [id, tags], (err, res) => {
+//     if (err) throw err
+//     console.log('done')
+//   })
+//   res.end()
+// })

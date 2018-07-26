@@ -13,6 +13,9 @@ import { withStyles } from '@material-ui/core/styles';
 import ImagesUploader from 'react-images-uploader';
 import 'react-images-uploader/styles.css';
 import 'react-images-uploader/font.css';
+import ReactDOM from 'react-dom';
+import { WithContext as ReactTags } from 'react-tag-input';
+import axios from 'axios'
 
 
   const styles = {
@@ -20,6 +23,13 @@ import 'react-images-uploader/font.css';
       flexGrow: 1
     }
   }
+
+  const KeyCodes = {
+    comma: 188,
+    enter: 13,
+  };
+   
+  const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
   function TabContainer(props) {
     return (
@@ -34,10 +44,53 @@ class Profil extends React.Component {
         this.state = {
             value: 0,
             selectedFile: null,
+            tags: [],
+            suggestions: [
+              { id: 'USA', text: 'USA' },
+              { id: 'Germany', text: 'Germany' },
+              { id: 'Austria', text: 'Austria' },
+              { id: 'Costa Rica', text: 'Costa Rica' },
+              { id: 'Sri Lanka', text: 'Sri Lanka' },
+              { id: 'Thailand', text: 'Thailand' }
+           ]
         }
+        this.handleDelete = this.handleDelete.bind(this);
+        this.handleAddition = this.handleAddition.bind(this);
+        this.handleDrag = this.handleDrag.bind(this);
     }
-  
 
+  // CHIPS / TAG
+  handleDelete(i) {
+    const { tags } = this.state;
+    this.setState({
+      tags: tags.filter((tag, index) => index !== i),
+    })
+    const id = localStorage.id
+    axios.post('/deltags', {tags, id})
+    .then((result) => {
+      console.log('ok')
+    })
+  }
+
+  handleAddition = (tag) =>  {
+      this.setState(state => ({ tags: [...state.tags, tag] }))
+      const id = localStorage.id
+      axios.post('/addtags', {tag, id})
+      .then((result) => {
+      })
+  }
+
+  handleDrag(tag, currPos, newPos) {
+      const tags = [...this.state.tags]
+      const newTags = tags.slice()
+
+      newTags.splice(currPos, 1);
+      newTags.splice(newPos, 0, tag)
+
+      this.setState({ tags: newTags })
+  }
+
+  // UPLOAD FILES
   fileChangedHandler = (event) => {
     this.setState({
       selectedFile: event.target.files[0]
@@ -59,6 +112,7 @@ class Profil extends React.Component {
   }
 
   render () {
+    const { tags, suggestions } = this.state;
     const { classes } = this.props;
     const { value } = this.state;
     return (
@@ -77,7 +131,15 @@ class Profil extends React.Component {
                       <p className='card-text'>Gender: {localStorage.gender}</p>
                       <p className='card-text'>Sexual Orientation: { localStorage.sex}</p>
                       <p className='card-text'>Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                      <p className='card-text'>TAG</p>
+                      <div>
+                      <ReactTags tags={tags}
+                        suggestions={suggestions}
+                        handleDelete={this.handleDelete}
+                        handleAddition={this.handleAddition}
+                        handleDrag={this.handleDrag}
+                        delimiters={delimiters} 
+                        maxLength = '10'/>
+                      </div>
                     </div>
                   </div>
                 </Col>
@@ -92,11 +154,11 @@ class Profil extends React.Component {
                 <Tab label='Tag' />
               </Tabs>
             </Paper>
-
             {value === 0 && (
             <TabContainer>
               <ImagesUploader
               url="http://localhost:9090/multiple"
+              // url='multiple'
               optimisticPreviews
               onLoadEnd={(err) => {
                   if (err) {
@@ -105,6 +167,16 @@ class Profil extends React.Component {
               }}
               label="Upload multiple images"
               />
+            </TabContainer>)}
+            {value === 2 && (
+            <TabContainer>
+              <ReactTags tags={tags}
+                suggestions={suggestions}
+                handleDelete={this.handleDelete}
+                handleAddition={this.handleAddition}
+                handleDrag={this.handleDrag}
+                delimiters={delimiters} 
+                maxLength = '10'/>    
             </TabContainer>)}
           </div>
         </div>

@@ -6,7 +6,6 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'mdbreact/dist/css/mdb.css'
 import axios from 'axios'
 import FormValidator from './FormValidator.js'
-// import Header from './header'
 
 class Inscription extends React.Component {
     constructor (props) {

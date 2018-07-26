@@ -9,7 +9,7 @@ import Account from './account'
 import Profil from './profil'
 import Forgot from './forgot_password'
 import Reset from './reset_password'
-// import Example from './test/test2'
+// import render from './test/test2'
 
 const Root = () => (
   <div id='global'>
@@ -21,8 +21,8 @@ const Root = () => (
       <Route exact path='/profil' component={Profil} />
       <Route exact path='/forgot_password' component={Forgot} />
       <Route exact path='/reset_password' component={Reset} />
-      {/* <Route exact path='/test' component={Test} />
-      <Route exact path='/test2' component={Example} /> */}
+      {/* {/* <Route exact path='/test' component={Test} /> */}
+      {/* // <Route exact path='/test2' component={render} /> */} */}
     </Switch>
   </div>
 )
