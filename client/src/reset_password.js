@@ -77,6 +77,15 @@ class Reset extends Component {
         }
     }
 
+    componentDidMount(){
+        axios.get(window.location.pathname)
+            .then((result) => {
+                console.log(result)
+            })
+            .catch((error) => {
+                console.log(error)
+            })      
+    }
     render() {
         let validation = this.submitted ? this.validator.validate(this.state) : this.state.validation
         return (

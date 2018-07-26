@@ -11,6 +11,8 @@ const ent = require('ent')
 const crypto = require('crypto')
 const fs = require('fs')
 const nodemailer = require('nodemailer')
+const uniqid = require('uniqid')
+const sha1 = require('sha1')
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
 app.use(bodyParser.json({ limit: '10Mb' }))
@@ -32,14 +34,87 @@ con.connect(function (err) {
   })
 })
 
+app.use(bodyParser.json())
+   .use(bodyParser.urlencoded({extended: true}))
+    .get('/reset_password/:token/:uname', (req, res) => {
+    if (!req.params.token || !req.params.uname)
+    console.log('ERROR')
+    else {
+      let sql = 'SELECT * from users WHERE uname = ? AND token = ?'
+      con.query(sql, [req.params.uname, req.params.token], (err, res) => {    
+        if (err) throw err
+        if (res[0].token === req.params.token && res[0].uname === req.params.uname){
+          console.log('GOOD')
+        }
+      })
+      res.end()
+    } 
+})
+
+app.use(bodyParser.json())
+  .use(bodyParser.urlencoded({ extended: true }))
+  .get('/validation/:token/:uname', (req, res) => {
+    if (!req.params.token || !req.params.uname)
+      console.log('ERROR')
+    else {
+      let sql = 'SELECT * from users WHERE uname = ? AND token = ?'
+      con.query(sql, [req.params.uname, req.params.token], (err, res) => {
+        if (err) throw err
+        if (res[0].token === req.params.token && res[0].uname === req.params.uname) {
+           console.log('GOOD')
+        }
+      })
+      res.end()
+    }
+  })
 app.post('/register', (req, res) => {
   let uname = ent.encode(req.body.uname)
   let lname = ent.encode(req.body.lname)
   let fname = ent.encode(req.body.fname)
   let mail = ent.encode(req.body.mail)
   let pwd = crypto.createHash('whirlpool').update(req.body.pwd).digest('hex')
-  let sql = 'INSERT INTO users(uname, lname, fname, email, password) VALUES(?, ?, ?, ?, ?)'
-  con.query(sql, [uname, lname, fname, mail, pwd], (err, res) => {
+  let token = sha1(uniqid())
+  let sql = 'INSERT INTO users(uname, lname, fname, email, password, token) VALUES(?, ?, ?, ?, ?, ?)'
+  con.query(sql, [uname, lname, fname, mail, pwd, token], (err, res) => {
+    if (err) throw err
+    })
+    res.end()
+  let sql2 = "SELECT * FROM users WHERE uname = ? and token = ?"
+  con.query(sql2, [uname, token], (err, res) => {
+    if (err) throw err
+    if (uname === res[0].uname && token === res[0].token){
+      var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'willfln34@gmail.com',
+          pass: 'matcha1234'
+        }
+      })
+      let mail = {
+        from: 'Matcha@gmail.com',
+        to: res[0].email,
+        subject: 'Account validation',
+        html: '<p>Welcome to Matcha ' + res[0].uname + '</p><br><p>To validate your account please click on the link below:</p><br><a href="http://localhost:3000/validation/' + res[0].token + '/' + res[0].uname + '">Validate your account</a>'
+      }
+      transporter.sendMail(mail, function (error, info) {
+        if (error) {
+          console.log('Email has not been sent')
+        } else {
+          console.log('Email sent')
+        }
+      })
+      transporter.close()
+    }
+    else {
+      let sql2 = "DELETE * FROM users WHERE uname = ?"
+      con.query(sql2, [uname], (err, res) => {
+        if (err) throw err
+      })
+    }
+  })
+  res.end()
+  let sql3 = "UPDATE users set confirmation = 1"
+  con.query(sql3, (err, res) => {
     if (err) throw err
   })
   res.end()
@@ -134,7 +209,7 @@ app.post('/forgot', (req, res) => {
         from: 'Matcha@gmail.com',
         to: res[0].email,
         subject: 'Reset your password',
-        html: '<p>Hello ' + res[0].uname + '</p><br><p>To change your password please click on the link below:</p><br><a href="http://localhost:3000/reset_password">Change password</a>'
+        html: '<p>Hello ' + res[0].uname + '</p><br><p>To change your password please click on the link below:</p><br><a href="http://localhost:3000/reset_password/' + res[0].token + '/' + res[0].uname +'">Change password</a>'
       }
       transporter.sendMail(mail, function (error, info) {
         if (error) {

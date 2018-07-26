@@ -11,7 +11,9 @@ CREATE TABLE IF NOT EXISTS `users`(
     age VARCHAR(255) NULL,
     sexual_orientation VARCHAR(255) NULL,
     gender VARCHAR(255) NULL,
-    password VARCHAR(255) NOT NULL
+    password VARCHAR(255) NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    confirmation INT(1) NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS profil_user (
