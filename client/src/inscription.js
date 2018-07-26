@@ -118,8 +118,7 @@ class Inscription extends React.Component {
         if (validation.isValid) {
             const {uname, lname, fname, mail, pwd, cpwd} = this.state
             axios.post('/register', {uname, lname, fname, mail, pwd, cpwd})
-                .then((result) => {
-                    this.props.history.push('./connexion')        
+                .then((result) => {   
             })
         }    
     }

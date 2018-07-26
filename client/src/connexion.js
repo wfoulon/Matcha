@@ -77,7 +77,6 @@ class Connexion extends Component {
       })
     }
   }
-
     render () {
         let validation = this.submitted ? this.validator.validate(this.state) : this.state.validation
         return (

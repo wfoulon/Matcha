@@ -27,8 +27,10 @@
     "react-progress-button": "^5.1.0",
     "react-router-private-route": "0.0.3",
     "react-scripts": "1.1.4",
+    "sha1": "^1.1.1",
     "standard": "^11.0.1",
     "superagent": "^3.8.3",
+    "uniqid": "^5.0.3",
     "yarn": "^1.7.0"
   },
   "scripts": {
