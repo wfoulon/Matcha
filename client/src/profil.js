@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component} from 'react'
 import 'font-awesome/css/font-awesome.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'mdbreact/dist/css/mdb.css'
@@ -13,7 +13,6 @@ import { withStyles } from '@material-ui/core/styles';
 import ImagesUploader from 'react-images-uploader';
 import 'react-images-uploader/styles.css';
 import 'react-images-uploader/font.css';
-import ReactDOM from 'react-dom';
 import { WithContext as ReactTags } from 'react-tag-input';
 import axios from 'axios'
 
@@ -38,11 +37,38 @@ import axios from 'axios'
       </Typography>
     )
   }
-class Profil extends React.Component {
+
+class Home extends Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+      all:  this.props.val
+    }
+  }
+
+  render () {
+    const val = this.state.all
+    return (
+        <div className='card mb-4 test2'>
+          <div className='view overlay'>
+            <img className='card-img-top' src='https://mdbootstrap.com/img/Photos/Others/images/49.jpg' alt='' />
+          </div>
+          <div className='card-body'>
+            <h4 className='card-title'>{val['fname']} {val['lname']}</h4>
+            <p className='card-text'>{val['gender']}</p>
+            <p className='card-text'>{val['sex']}</p>
+            <p className='card-text'>Some quick example text to build on the card title and make up the bulk of the card's content.</p>  
+          </div>
+        </div>
+    )
+  }
+}
+class Profil extends Component {
     constructor(props) {
         super(props)
         this.state = {
             value: 0,
+            all: null,
             selectedFile: null,
             tags: [],
             suggestions: [
@@ -109,6 +135,22 @@ class Profil extends React.Component {
     // }) 
     console.log(this.state.selectedFile)
     // console.log(this.state.selectedFile[1])
+  
+  }
+
+  componentDidMount = (e) => {
+    const id = localStorage.id
+    axios.post('/match', { id })
+    .then((result) => {
+      const all = result.data
+      console.log(all)
+      let info = Object.keys(all).map((val, key) =>
+      <Home key={key} val={all[val]} />
+      )
+      this.setState({
+        all: info
+      })
+    })
   }
 
   render () {
@@ -124,7 +166,7 @@ class Profil extends React.Component {
                 <Col xs={6} md={4}>
                   <div className='card mb-4'>
                     <div className='view overlay'>
-                      <img className='card-img-top' src='https://mdbootstrap.com/img/Photos/Others/images/49.jpg' alt='Card image cap' />
+                      <img className='card-img-top' src='https://mdbootstrap.com/img/Photos/Others/images/49.jpg' alt='' />
                     </div>
                     <div className='card-body'>
                       <h4 className='card-title'>{localStorage.fname} {localStorage.lname}</h4>
@@ -168,6 +210,13 @@ class Profil extends React.Component {
               label="Upload multiple images"
               />
             </TabContainer>)}
+            {value === 1 && (
+              <TabContainer>
+                <div className='test'>
+                  {this.state.all}
+                </div>
+              </TabContainer>
+            )}
             {value === 2 && (
             <TabContainer>
               <ReactTags tags={tags}

@@ -191,7 +191,6 @@ class Account extends Component {
     }
   
   onSubmitMail = (e) => {
-    console.log('yoloo')
     const validation = this.validator.validate(this.state)
     this.setState({ validation })
     this.submitted = true
@@ -201,7 +200,6 @@ class Account extends Component {
       const {uname, newemail, pwd, cpwd} = this.state
       axios.post('/changemail', {uname, newemail, pwd, cpwd, id, login})
       .then((result) => {
-        console.log('yolooooooooooo')
       })
     // }
   }
@@ -277,7 +275,7 @@ class Account extends Component {
                                 <option value="Heterosexual">Heterosexual</option>
                                 <option value="Homosexual">Homosexual</option>
                                 <option value="Bisexual">Bisexual</option>
-                            </select>                          
+                        </select>                          
                         </div>
                       </div>
                       <div className="text-center py-4 mt-3">

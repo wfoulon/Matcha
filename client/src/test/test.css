@@ -1,0 +1,38 @@
+.test {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.test2 {
+    margin-top: 20px;
+    width: 250px;
+}
+
+    
+/* .table {
+    margin: 1em;
+    display: flex;
+    flex-direction: column;
+}  
+
+.header, .row {
+    display: flex;
+        
+      }
+      
+      .header {
+        background-color: rgb(238, 238, 238);
+      }
+
+.header div {
+    flex: 1;
+    padding: 0.2rem 0.4em;
+    border: 1px solid rgb(238, 238, 238);
+    cursor: pointer;
+}
+.row div {
+    flex: 1;
+    padding: 0.2rem 0.4em;
+    border: 1px solid rgb(238, 238, 238);
+} */

@@ -53,7 +53,7 @@ class Connexion extends Component {
       [e.target.name]: e.target.value
     })
   }
-
+  
   onSubmit = (e) => {
     localStorage.clear()
     const validation = this.validator.validate(this.state)

@@ -72,7 +72,7 @@ class Header extends React.Component {
               <MenuIcon />
             </IconButton>
             <img src={logo} className="App-logo" alt="logo" />
-            <Typography variant="title" color="inherit" className={classes.flex}>Matcha</Typography>
+            <Typography variant="title" color="inherit" className={classes.flex}><a href='/home'>Matcha</a></Typography>
                 <div>
                 {this.state.log ? 
                  <IconButton aria-owns={open ? 'menu-appbar' : null} aria-haspopup="true" color="inherit" onClick={this.handleMenu}>
