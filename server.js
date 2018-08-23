@@ -437,7 +437,7 @@ app.post('/profil/image/display', (req, res) => {
   })
 })
 
-app.post('profil/imgage/delete', (req, res) => {
+app.post('/profil/imgage/delete', (req, res) => {
   let sql = 'SELECT * FROM `image` WHERE id = ?'
   con.query(sql, [req.body.id], (err, resul) => {
     if (err) throw err
@@ -453,4 +453,18 @@ app.post('profil/imgage/delete', (req, res) => {
     })
   })
   res.end()
+})
+
+app.post('/search/fetch', (req, res) => {
+  console.log(req.body.data.gender)
+  if (req.body.data || req.body.data.gender || req.body.data.sexual) {
+    let sql = 'SELECT * FROM `users` WHERE id != ? AND gender = ? AND sexual_orientation = ?'
+    con.query(sql, [req.body.id, req.body.data.gender, req.body.data.sexual], (err, resu) => {
+      if (err) throw err
+      res.send(resu)
+      res.end()
+    })
+  } else {
+    res.end()
+  }
 })

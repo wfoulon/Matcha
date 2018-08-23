@@ -20,7 +20,7 @@ const layout = (props) => {
         <Route path='/feed' component={Feed} />
         <Route exact path='/profil/:id' component={GetProfil} />
         <Route exact path='/account' component={Account} />
-        {/* <Route exact path='/search' component={Search} /> */}
+        <Route exact path='/search' component={Search} />
       </main>
     </Aux>
   )

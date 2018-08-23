@@ -11,6 +11,7 @@ class Feed extends Component {
       all: null
     }
   }
+  
   componentDidMount = (e) => {
     const id = localStorage.id
     axios.post('/home', { id })
