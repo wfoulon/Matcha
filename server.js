@@ -8,14 +8,17 @@ const crypto = require('crypto')
 const fs = require('fs')
 const nodemailer = require('nodemailer')
 const uniqid = require('uniqid')
+const fileUpload = require('express-fileupload')
+const cors = require('cors')
 const sha1 = require('sha1')
 
 app.listen(port, () => console.log(`Listening on port ${port}`))
+app.use(cors())
+app.use(fileUpload())
 app.use(bodyParser.json({ limit: '10Mb' }))
   .use(bodyParser.urlencoded({ extended: false }))
-  // .use(corsPrefetch)
 
-var con = mysql.createConnection({
+let con = mysql.createConnection({
   host: 'localhost',
   user: 'matcha',
   password: 'root42',
@@ -294,8 +297,9 @@ app.post('/addtags', (req, res) => {
 //   res.end()
 // })
 
-app.post('/test', (req, res) => {
+app.post('/home', (req, res) => {
   let id = req.body.id
+  // console.log(id)
   let sql = 'SELECT * from users WHERE id = ?'
   con.query(sql, [id], (err, result) => {
     if (err) throw err
@@ -315,45 +319,138 @@ app.post('/test', (req, res) => {
   })
 })
 
-app.post('/match', (req, res) => {
-  let id = req.body.id
-  let sql = 'SELECT * from `like` WHERE uid_1 = ?'
-  con.query(sql, [id], (err, resu) => {
+app.post('/profil/match', (req, res) => {
+  let sql = 'SELECT * FROM `users` WHERE `id` IN ( SELECT `match` FROM `like` WHERE `uid` = ? AND status = 2)'
+  con.query(sql, [req.body.id], (err, resul) => {
     if (err) throw err
-    console.log(resu)
-    let uid = resu[0].uid_2
-    console.log(uid)
-    let sql = 'SELECT * from users WHERE id = ?'
-    con.query(sql, [uid], (err, resul) => {
-      if (err) throw err
-      res.send(resul)
-      res.end()
-    })
+    res.send(resul)
+    res.end()
   })
 })
 
 app.post('/like', (req, res) => {
-  console.log('ok')
-  let id = req.body.id
-  let id_match = req.body.id_match
-  let sql = 'SELECT * FROM `like` WHERE uid_1 = ? AND uid_2 = ?'
-  con.query(sql, [id, id_match], (err, resu) => {
+  let sql = 'SELECT * FROM `like` WHERE `uid` = ? AND `match` = ?'
+  con.query(sql, [req.body.id, req.body.id_match], (err, resu) => {
     if (err) throw err
-    console.log(resu)
+    console.log('first')
+    console.log(req.body.id_match)
+    console.log(req.body.id)
     if (resu[0]) {
       console.log('already')
     } else {
-      let sql = 'INSERT INTO `like`(`uid_1`, `uid_2`) VALUES (?, ?)'
-      con.query(sql, [id, id_match], (err, result) => {
+      // console.log(resu)
+      let sql = 'SELECT * FROM `like` WHERE `match` = ? AND `uid` = ?'
+      con.query(sql, [req.body.id, req.body.id_match], (err, resul) => {
+        console.log('second')
+        console.log(resul)
+        // console.log(resul[0].match)
+        console.log(req.body.id_match)
+        console.log(req.body.id)
         if (err) throw err
-        console.log('ok')
+        if (resul[0]) {
+          if (req.body.id.to === resul[0].match.to) {
+            let sql = 'INSERT INTO `like`(`uid`, `match`, `status`) VALUES (?, ?, 2); UPDATE `like` SET status = 2 WHERE `uid` = ? AND `match` = ?'
+            con.query(sql, [req.body.id, req.body.id_match, req.body.id_match, req.body.id], (err, result) => {
+              if (err) throw err
+              console.log('letsgo')
+            })
+          }
+        } else {
+          let sql = 'INSERT INTO `like`(`uid`, `match`, `status`) VALUES (?, ?, 1)'
+          con.query(sql, [req.body.id, req.body.id_match], (err, result) => {
+            if (err) throw err
+          })
+        }
       })
     }
   })
   res.end()
 })
 
-app.post('/myprofil', (req, res) => {
-  let id = req.body.id
-  console.log(id)
+app.post('/profil/match/dislike', (req, res) => {
+  console.log(req.body.id_match)
+  let sql = 'SELECT * FROM `like` WHERE `uid` = ? AND `match` = ?'
+  con.query(sql, [req.body.id, req.body.id_match], (err, resu) => {
+    if (err) throw err
+    if (resu[0]) {
+      let sql = 'UPDATE `like` SET status = -1 WHERE uid = ? AND `match` = ?'
+      con.query(sql, [resu[0].uid, resu[0].match], (res, resul) => {
+        if (err) throw err
+      })
+    } else {
+      let sql = 'INSERT INTO `like`(`uid`, `match`, `status`) VALUES (?, ?, -1)'
+      con.query(sql, [req.body.id, req.body.id_match], (err, result) => {
+        if (err) throw err
+      })
+    }
+  })
+  res.end()
+})
+
+app.post('/profil/image/upload', (req, res) => {
+  let name = uniqid() + '.png'
+  let data = req.body.dataURL
+  data = data.split(',')
+  let ext = data[0].indexOf('image')
+  if (ext !== -1) {
+    let img = data[1]
+    fs.writeFileSync('./images/' + name, img, 'base64', (err) => {
+      if (err) throw err
+    })
+    let sql = 'INSERT INTO `image`(`uid`, `post_url`) VALUES (?, ?)'
+    con.query(sql, [req.body.id, name], (err, result) => {
+      if (err) throw err
+      let sql = 'SELECT `post_url` from `image` WHERE uid = ?'
+      con.query(sql, [req.body.id], (err, resu) => {
+        if (err) throw err
+        res.send(resu)
+        res.end()
+      })
+    })
+  }
+})
+
+app.post('/profil/image/display', (req, res) => {
+  let sql = 'SELECT * FROM `image` WHERE uid = ?'
+  con.query(sql, [req.body.id], (err, resu) => {
+    if (err) throw err
+    // if (err || resu.length === 0) {
+    //   // let img = fs.readFileSync('./images/users/defaultm.png', 'base64')
+    //   // resu[0].profimg = 'data:image/png;base64,' + img
+    //   // res.send(resu)
+    //   // res.end()
+    //   // res.send('An err occured, please try again !')
+    //   // res.end()
+    //   // throw err
+    // } else {
+    //   let img = resu[0].post_url
+    //   fs.readFile('./images/' + img, 'base64', (err, result) => {
+    //     if (err) {
+    //       img = fs.readFileSync('./images/users/defaultm.png', 'base64')
+    //     } else img = result
+    //     resu[0].img = 'data:image/png;base64,' + img
+    res.send(resu)
+    // console.log(resu)
+    res.end()
+    // })
+    // }
+  })
+})
+
+app.post('profil/imgage/delete', (req, res) => {
+  let sql = 'SELECT * FROM `image` WHERE id = ?'
+  con.query(sql, [req.body.id], (err, resul) => {
+    if (err) throw err
+    console.log(resul)
+    const fs = require('fs')
+    fs.unlink('./images/' + resul[0].post_url, (err) => {
+      if (err) throw err
+      console.log('successfully deleted')
+    })
+    let sql = 'DELETE FROM `image` WHERE id = ?'
+    con.query(sql, [req.body.id], (err, resu) => {
+      if (err) throw err
+    })
+  })
+  res.end()
 })

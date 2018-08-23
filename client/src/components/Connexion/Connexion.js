@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 import { Container, Row, Col, Input, Button, Card, CardBody } from 'mdbreact'
 import axios from 'axios'
-import './styles/form.css'
+
+import FormValidator from '../../FormValidator'
+
 import 'font-awesome/css/font-awesome.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'mdbreact/dist/css/mdb.css'
-import FormValidator from './FormValidator.js'
+import './Connexion.css'
 
 class Connexion extends Component {
   constructor (props) {
@@ -32,16 +34,17 @@ class Connexion extends Component {
     },
     {
       field: 'pwd',
-      method: 'matches',
+      method: 'matches',  
       args: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/],
       validWhen: true,
-      message: 'Wrong password'
+      message: 'a-z / A-Z / 8 minimum'
     },
     ])
     this.state = {
       login: '',
       pwd: '',
       validation: this.validator.valid(),
+      error: false,
     }
     this.onChange = this.onChange.bind(this)
     this.onSubmit = this.onSubmit.bind(this)
@@ -64,9 +67,6 @@ class Connexion extends Component {
       axios.post('/connexion', {login, pwd})
       .then((result) => {
         if(result.data.length === 1) {
-          this.setState({
-            log: false
-        })
         localStorage.setItem('login', result.data[0].uname)
         localStorage.setItem('id', result.data[0].id)
         localStorage.setItem('lname', result.data[0].lname)
@@ -75,45 +75,49 @@ class Connexion extends Component {
         localStorage.setItem('sex', result.data[0].sexual_orientation)
         localStorage.setItem('age', result.data[0].age)
         this.props.history.push('/profil')
+        } else {
+          this.setState({
+            error: true
+          })
         }
-        else console.log('empty')
       })
     }
   }
   render () {
     let validation = this.submitted ? this.validator.validate(this.state) : this.state.validation
-      return (
-        <Container>
-          <Row>
-            <Col md="6">
-              <Card>
-                <CardBody>
-                  <p className="h4 text-center py-4">Sign in</p>
-                  <div className="grey-text">
-                    <div>                                        
-                      <Input name='login' label="Username" icon="user" group type="text" validate error="wrong" success="right" onChange={this.onChange} />                                    
-                      <span>{validation.login.message}</span>
-                    </div>
-                    <div>    
-                      <Input name='pwd' label="Password" icon="lock" group type="password" validate error="wrong" success="right" onChange={this.onChange}/>
-                      <span>{validation.pwd.message}</span>
-                    </div>
+    return (
+      <Container>
+        <Row>
+          <Col md="6">
+            <Card>
+              <CardBody>
+                <p className="h4 text-center py-4">Sign in</p>
+                <div className="grey-text">
+                  <div>                                        
+                    <Input name='login' label="Username" icon="user" group type="text" validate error="wrong" success="right" onChange={this.onChange} />                                    
+                    <span>{validation.login.message}</span>
                   </div>
-                  <div className="text-center py-4 mt-3">
-                    <Button color="cyan" onClick={this.onSubmit}>Connexion</Button>
+                  <div>    
+                    <Input name='pwd' label="Password" icon="lock" group type="password" validate error="wrong" success="right" onChange={this.onChange}/>
+                    <span>{validation.pwd.message}</span>
                   </div>
-                  <div className="text-center py-4 mt-3">
-                    <Button href="/" color="cyan">Not Register ?</Button>
-                  </div>
-                  <div className="text-center py-4 mt-3">
-                    <Button href="/forgot_password" color="cyan">Forgot Password ?</Button>
-                  </div>
-                </CardBody>
-              </Card>
-            </Col>
-          </Row>
-        </Container>
-      )
+                </div>
+                <div className="text-center py-4 mt-3">
+                  <Button color="cyan" onClick={this.onSubmit}>Connexion</Button>
+                </div>
+                {this.state.error ? <div>Wrong password or Username, please try again !</div> : '' }
+                {/* <div className="text-center py-4 mt-3">
+                  <Button href="/" color="cyan">Not Register ?</Button>
+                </div>
+                <div className="text-center py-4 mt-3">
+                  <Button href="/forgot_password" color="cyan">Forgot Password ?</Button>
+                </div> */}
+              </CardBody>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    )
   }
 }
 

@@ -3,18 +3,23 @@ import 'font-awesome/css/font-awesome.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'mdbreact/dist/css/mdb.css'
 import './styles/profil.css'
-import {Grid, Col, Row} from 'react-bootstrap/lib/';
-import Paper from '@material-ui/core/Paper';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import PropTypes from 'prop-types';
-import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
-import ImagesUploader from 'react-images-uploader';
-import 'react-images-uploader/styles.css';
-import 'react-images-uploader/font.css';
-import { WithContext as ReactTags } from 'react-tag-input';
+import {Grid, Col, Row} from 'react-bootstrap/lib/'
+import Paper from '@material-ui/core/Paper'
+import Tabs from '@material-ui/core/Tabs'
+import Tab from '@material-ui/core/Tab'
+import PropTypes from 'prop-types'
+import Typography from '@material-ui/core/Typography'
+import { withStyles } from '@material-ui/core/styles'
+import 'react-images-uploader/styles.css'
+import 'react-images-uploader/font.css'
+import { WithContext as ReactTags } from 'react-tag-input'
+import Watson from './img/watson.jpg'
+import Loc from './img/location.png'
 import axios from 'axios'
+import './styles/global.css'
+import ProfilCard from './component/profilCard'
+import ProfilPic from './component/profilPic'
+import GetCoords from './component/getCoords'
 
 
   const styles = {
@@ -26,9 +31,9 @@ import axios from 'axios'
   const KeyCodes = {
     comma: 188,
     enter: 13,
-  };
+  }
    
-  const delimiters = [KeyCodes.comma, KeyCodes.enter];
+  const delimiters = [KeyCodes.comma, KeyCodes.enter]
 
   function TabContainer(props) {
     return (
@@ -37,39 +42,13 @@ import axios from 'axios'
       </Typography>
     )
   }
-
-class Home extends Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      all:  this.props.val
-    }
-  }
-
-  render () {
-    const val = this.state.all
-    return (
-        <div className='card mb-4 test2'>
-          <div className='view overlay'>
-            <img className='card-img-top' src='https://mdbootstrap.com/img/Photos/Others/images/49.jpg' alt='' />
-          </div>
-          <div className='card-body'>
-            <h4 className='card-title'>{val['fname']} {val['lname']}</h4>
-            <p className='card-text'>{val['gender']}</p>
-            <p className='card-text'>{val['sex']}</p>
-            <p className='card-text'>Some quick example text to build on the card title and make up the bulk of the card's content.</p>  
-          </div>
-        </div>
-    )
-  }
-}
-class Profil extends Component {
+  class Profil extends Component {
     constructor(props) {
         super(props)
         this.state = {
             value: 0,
             all: null,
-            selectedFile: null,
+            img: null,
             tags: [],
             suggestions: [
               { id: 'USA', text: 'USA' },
@@ -80,14 +59,19 @@ class Profil extends Component {
               { id: 'Thailand', text: 'Thailand' }
            ]
         }
-        this.handleDelete = this.handleDelete.bind(this);
-        this.handleAddition = this.handleAddition.bind(this);
-        this.handleDrag = this.handleDrag.bind(this);
-    }
+        this.handleDelete = this.handleDelete.bind(this)
+        this.handleAddition = this.handleAddition.bind(this)
+        this.handleDrag = this.handleDrag.bind(this)
+        this.handleUpload = this.handleUpload.bind(this)
+      }
+      
+  handleChange = (event, value) => {
+    this.setState({ value })
+  }
 
   // CHIPS / TAG
   handleDelete(i) {
-    const { tags } = this.state;
+    const { tags } = this.state
     this.setState({
       tags: tags.filter((tag, index) => index !== i),
     })
@@ -110,53 +94,61 @@ class Profil extends Component {
       const tags = [...this.state.tags]
       const newTags = tags.slice()
 
-      newTags.splice(currPos, 1);
+      newTags.splice(currPos, 1)
       newTags.splice(newPos, 0, tag)
 
       this.setState({ tags: newTags })
   }
 
+  
   // UPLOAD FILES
-  fileChangedHandler = (event) => {
-    this.setState({
-      selectedFile: event.target.files[0]
-    })
+
+  // handleUpload(ev) {
+  //   ev.preventDefault()
+  //   const data = new FormData()
+  //   data.append('file', this.uploadInput.files[0])
+  //   // data.append('filename', this.fileName.value)
+  //   data.append('uid', localStorage.id)
+  //   axios.post('file-upload', data)
+  //   .then((result) => {
+  //     console.log(result)
+  //   })
+  //   .catch((error) => {
+  //       console.log(error)
+  //     })
+  // }
+
+  // MATCH
     
-  }
-  
-  handleChange = (event, value) => {
-    this.setState({ value });
-  }
-
-  uploadHandler = () => {
-    // axios.post('/uploadimg', {})
-    // .then.result((result) => {
-
-    // }) 
-    console.log(this.state.selectedFile)
-    // console.log(this.state.selectedFile[1])
-  
-  }
-
   componentDidMount = (e) => {
     const id = localStorage.id
     axios.post('/match', { id })
     .then((result) => {
       const all = result.data
-      console.log(all)
+      // console.log(all)
       let info = Object.keys(all).map((val, key) =>
-      <Home key={key} val={all[val]} />
+      <ProfilCard key={key} val={all[val]} />
       )
       this.setState({
         all: info
       })
     })
+    axios.post('/image', {id})
+    .then((result) => {
+      // console.log(result.data)
+      let info = Object.keys(result.data).map((val, key) => 
+        <ProfilPic key={key} val={result.data[val]} />
+      )
+      this.setState({
+        img: info
+      })
+    })
   }
 
   render () {
-    const { tags, suggestions } = this.state;
-    const { classes } = this.props;
-    const { value } = this.state;
+    const { tags, suggestions } = this.state
+    const { classes } = this.props
+    const { value } = this.state
     return (
       <div className='main-content'>
         <div className='content-profile'>
@@ -164,17 +156,21 @@ class Profil extends Component {
             <Grid>
               <Row>
                 <Col xs={6} md={4}>
-                  <div className='card mb-4'>
-                    <div className='view overlay'>
-                      <img className='card-img-top' src='https://mdbootstrap.com/img/Photos/Others/images/49.jpg' alt='' />
+                  <div className='card mb-4 test2'>
+                    <div className='card-img text-center'>
+                      <img src={Watson} alt='' />
                     </div>
                     <div className='card-body'>
                       <h4 className='card-title'>{localStorage.fname} {localStorage.lname}</h4>
-                      <p className='card-text'>Gender: {localStorage.gender}</p>
-                      <p className='card-text'>Sexual Orientation: { localStorage.sex}</p>
-                      <p className='card-text'>Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                      <div>
-                      <ReactTags tags={tags}
+                      <p className='card-text text-center'>{localStorage.gender} {localStorage.sex} {localStorage.age}</p>
+                      <p className='card-text'>Some quick example text to build on the card title and make up the bulk of the card's content.</p>  
+                    </div>
+                    <div className='flex'>
+                  <p>{<GetCoords />}</p>
+                      <button><img style={{width: '35px'}} src={Loc}/></button>
+                    </div>
+                  </div>
+                      {/* <ReactTags tags={tags}
                         suggestions={suggestions}
                         handleDelete={this.handleDelete}
                         handleAddition={this.handleAddition}
@@ -183,7 +179,7 @@ class Profil extends Component {
                         maxLength = '10'/>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                 </Col>
               </Row>
             </Grid>
@@ -194,21 +190,22 @@ class Profil extends Component {
                 <Tab label='Pictures' />
                 <Tab label='Matches' />
                 <Tab label='Tag' />
+                <Tab label='History' />
               </Tabs>
             </Paper>
             {value === 0 && (
-            <TabContainer>
-              <ImagesUploader
-              url="http://localhost:9090/multiple"
-              // url='multiple'
-              optimisticPreviews
-              onLoadEnd={(err) => {
-                  if (err) {
-                      console.error(err);
-                  }
-              }}
-              label="Upload multiple images"
-              />
+            <TabContainer className='flex'>
+              <div style= {{width: '240px'}}>
+                <form onSubmit={this.handleUpload}>
+                  <div className="form-group">
+                  <input className="form-control"  ref={(ref) => { this.uploadInput = ref }} type="file" />
+                </div>
+                <button className="btn btn-success" type>Upload</button>
+              </form>
+              </div>
+              <div className='flex'>
+                {this.state.img}
+              </div>
             </TabContainer>)}
             {value === 1 && (
               <TabContainer>
@@ -227,6 +224,9 @@ class Profil extends Component {
                 delimiters={delimiters} 
                 maxLength = '10'/>    
             </TabContainer>)}
+            {value === 3 && (
+            <TabContainer>
+            </TabContainer>)}
           </div>
         </div>
       </div>
@@ -236,6 +236,6 @@ class Profil extends Component {
 
 Profil.propTypes = {
     classes: PropTypes.object.isRequired
-  };
+  }
   
-  export default withStyles(styles)(Profil);
+  export default withStyles(styles)(Profil)
