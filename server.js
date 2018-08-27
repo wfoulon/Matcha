@@ -456,15 +456,61 @@ app.post('/profil/imgage/delete', (req, res) => {
 })
 
 app.post('/search/fetch', (req, res) => {
-  console.log(req.body.data.gender)
-  if (req.body.data || req.body.data.gender || req.body.data.sexual) {
-    let sql = 'SELECT * FROM `users` WHERE id != ? AND gender = ? AND sexual_orientation = ?'
-    con.query(sql, [req.body.id, req.body.data.gender, req.body.data.sexual], (err, resu) => {
+  const data = req.body.data
+  // console.log(data.gender.length)
+  if (data.gender.length > 0 && data.sexual.length > 0) {
+    // if (data.gender.length > 1 || data.sexual.length > 1) {
+    //   if (data.sexual.length === 2 && data.gender.length === 1) {
+    //     let sql = 'SELECT * FROM `users` WHERE id != ? AND age BETWEEN ? AND ? AND sexual_orientation LIKE ? OR  sexual_orientation LIKE ? AND gender = ?'
+    //     con.query(sql, [req.body.id, data.value.min, data.value.max, data.sexual[0], data.sexual[1], data.gender], (err, resu) => {
+    //       if (err) throw err
+    //       console.log('2-1')
+    //       res.send(resu)
+    //       res.end()
+    //     })
+    //   } else if (data.sexual.length === 3 && data.gender.length === 1) {
+    //     let sql = 'SELECT * FROM `users` WHERE id != ? AND gender = ? AND age BETWEEN ? AND ? AND sexual_orientation LIKE ? OR  sexual_orientation LIKE ? OR sexual_orientation LIKE ?'
+    //     con.query(sql, [req.body.id, data.gender, data.value.min, data.value.max, data.sexual[0], data.sexual[1], data.sexual[2]], (err, resu) => {
+    //       if (err) throw err
+    //       console.log('3-1')
+    //       res.send(resu)
+    //       res.end()
+    //     })
+    //   } else if (data.sexual.length === 2 && data.gender.length === 2) {
+    //     let sql = 'SELECT * FROM `users` WHERE id != ? AND age BETWEEN ? AND ? AND sexual_orientation LIKE ? OR  sexual_orientation LIKE ? OR sexual_orientation LIKE ? AND gender LIKE ? OR gender LIKE ?'
+    //     con.query(sql, [req.body.id, data.value.min, data.value.max, data.sexual[0], data.sexual[1], data.gender[0], data.gender[1]], (err, resu) => {
+    //       if (err) throw err
+    //       console.log('2-2')
+    //       res.send(resu)
+    //       res.end()
+    //     })
+    //   } else {
+    //     let sql = 'SELECT * FROM `users` WHERE id != ? AND age BETWEEN ? AND ? AND sexual_orientation LIKE ? OR  sexual_orientation LIKE ? OR sexual_orientation LIKE ? AND gender LIKE ? OR gender LIKE ?'
+    //     con.query(sql, [req.body.id, data.value.min, data.value.max, data.sexual[0], data.sexual[1], data.sexual[2], data.gender[0], data.gender[1]], (err, resu) => {
+    //       if (err) throw err
+    //       console.log('3-2')
+    //       res.send(resu)
+    //       res.end()
+    //     })
+    //   }
+    // } else {
+    //   let sql = 'SELECT * FROM `users` WHERE id != ? AND gender = ? AND sexual_orientation = ? AND age BETWEEN ? AND ?'
+    //   con.query(sql, [req.body.id, data.gender, data.sexual, data.value.min, data.value.max], (err, resu) => {
+    //     if (err) throw err
+    //     console.log('la')
+    //     res.send(resu)
+    //     res.end()
+    //   })
+    // }
+    let sql = 'SELECT * FROM `users` WHERE id != ? AND age BETWEEN ? AND ? AND (sexual_orientation LIKE ? OR  sexual_orientation LIKE ? OR sexual_orientation LIKE ?) AND (gender LIKE ? OR gender LIKE ?)'
+    con.query(sql, [req.body.id, data.value.min, data.value.max, data.sexual[0], data.sexual[1], data.sexual[2], data.gender[0], data.gender[1]], (err, resu) => {
       if (err) throw err
+      // console.log('3-2')
       res.send(resu)
       res.end()
     })
   } else {
+    // res.send()
     res.end()
   }
 })

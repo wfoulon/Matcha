@@ -9,7 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'mdbreact/dist/css/mdb.css'
 import './Connexion.css'
 
-class Connexion extends Component {
+class ConnexionForm extends Component {
   constructor (props) {
     super(props)
     this.validator = new FormValidator([
@@ -121,4 +121,4 @@ class Connexion extends Component {
   }
 }
 
-export default Connexion
+export default ConnexionForm
