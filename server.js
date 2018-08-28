@@ -15,7 +15,6 @@ const path = require('path')
 
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'jade')
-// app.use(cookieParser());
 app.use(fileUpload())
 app.use('/public', express.static(path.join(__dirname, '/public')))
 
@@ -274,19 +273,16 @@ app.post('/reset', (req, res) => {
   res.end()
 })
 
-
-
-app.post('/home', (req, res) => {
+app.post('/feed/display', (req, res) => {
   let id = req.body.id
-  // console.log(id)
   let sql = 'SELECT * from users WHERE id = ?'
   con.query(sql, [id], (err, result) => {
     if (err) throw err
     let sexual = result[0].sexual_orientation
     let gender = result[0].gender
     let age = result[0].age
-    let x = 2
-    let y = 2
+    let x = 5
+    let y = 5
     let agemin = age - (x)
     let agemax = (age - (y) + (x) + (x))
     let sql = 'SELECT * from users WHERE sexual_orientation = ? AND gender != ? AND age BETWEEN ? AND ?'
@@ -317,7 +313,6 @@ app.post('/like', (req, res) => {
     if (resu[0]) {
       console.log('already')
     } else {
-      // console.log(resu)
       let sql = 'SELECT * FROM `like` WHERE `match` = ? AND `uid` = ?'
       con.query(sql, [req.body.id, req.body.id_match], (err, resul) => {
         if (err) throw err
@@ -435,9 +430,10 @@ app.post('/profil/imgage/delete', (req, res) => {
 app.post('/search/fetch', (req, res) => {
   const data = req.body.data
   if (data.gender.length > 0 && data.sexual.length > 0) {
-    let sql = 'SELECT * FROM `users` WHERE id != ? AND age BETWEEN ? AND ? AND (sexual_orientation LIKE ? OR  sexual_orientation LIKE ? OR sexual_orientation LIKE ?) AND (gender LIKE ? OR gender LIKE ?)'
-    con.query(sql, [req.body.id, data.value.min, data.value.max, data.sexual[0], data.sexual[1], data.sexual[2], data.gender[0], data.gender[1]], (err, resu) => {
+    let sql = 'SELECT * FROM `users` WHERE id != ? AND (age BETWEEN ? AND ?) AND (score BETWEEN ? AND ?) AND (sexual_orientation LIKE ? OR  sexual_orientation LIKE ? OR sexual_orientation LIKE ?) AND (gender LIKE ? OR gender LIKE ?)'
+    con.query(sql, [req.body.id, data.value.min, data.value.max, data.score.min, data.score.max, data.sexual[0], data.sexual[1], data.sexual[2], data.gender[0], data.gender[1], data.tags], (err, resu) => {
       if (err) throw err
+      console.log(resu)
       res.send(resu)
       res.end()
     })

@@ -14,7 +14,7 @@ class Feed extends Component {
   
   componentDidMount = (e) => {
     const id = localStorage.id
-    axios.post('/home', { id })
+    axios.post('/feed/display', { id })
     .then((result) => {
       const all = result.data
       console.log(all)

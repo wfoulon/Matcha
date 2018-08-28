@@ -51,6 +51,7 @@ class Toolbar extends Component {
     return (
       <div className='Toolbar'>
         <img className='Toolbar-logo' src={Logo} alt='' />
+        <a href='/feed' className='Toolbar-items'>Matcha</a>
         {this.state.log ?
         <div>
           <img className='Toolbar-items' src={Notif} alt='' />

@@ -20,3 +20,8 @@
 .Toolbar-items {
     height: 25px;
 }
+
+.Toolbar-items a {
+    color: white;
+    text-decoration: none;
+}
