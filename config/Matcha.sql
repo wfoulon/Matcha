@@ -13,13 +13,15 @@ CREATE TABLE IF NOT EXISTS `users`(
     gender VARCHAR(255) NULL,
     password VARCHAR(255) NOT NULL,
     token VARCHAR(255) NOT NULL,
-    confirmation INT(1) NOT NULL DEFAULT 0
+    confirmation INT(1) NOT NULL DEFAULT 0,
+    `image` VARCHAR(300) NULL,
+    score INT NULL
 );
 
-CREATE TABLE IF NOT EXISTS profil_user (
+CREATE TABLE IF NOT EXISTS `interest` (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     uid INT NOT NULL,
-    tag VARCHAR(255) NULL
+    interest VARCHAR(255) NULL
 );
 
 CREATE TABLE IF NOT EXISTS `like` (

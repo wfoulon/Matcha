@@ -5,7 +5,7 @@ import './styles/form.css'
 import 'font-awesome/css/font-awesome.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'mdbreact/dist/css/mdb.css'
-import FormValidator from './FormValidator.js'
+import FormValidator from '../../FormValidator/FormValidator'
 
 class Forgot extends Component {
   constructor(props) {

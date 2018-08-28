@@ -37,7 +37,7 @@ class Picture extends Component {
     reader.readAsDataURL(input.files[0])
   }
 
-    componentWillMount = (e) => {
+  componentWillMount = (e) => {
     const id = localStorage.id
     axios.post('/profil/image/display', {id})
     .then((result) => {
@@ -48,7 +48,7 @@ class Picture extends Component {
       // console.log(this.state.upload)
       this.setState({
         img: info
-      })
+      }) 
     })
   }
 

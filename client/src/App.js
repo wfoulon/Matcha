@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Aux from './hoc/Aux'
-import Layout from './container/Layout/Layout'
+import Layout from './components/Layout/Layout'
 
 class App extends Component {
   render () {

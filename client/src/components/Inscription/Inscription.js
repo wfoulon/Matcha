@@ -5,9 +5,9 @@ import 'font-awesome/css/font-awesome.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'mdbreact/dist/css/mdb.css'
 import axios from 'axios'
-import FormValidator from '../../FormValidator'
+import FormValidator from '../FormValidator/FormValidator'
 
-class InscriptionForm extends React.Component {
+class Inscription extends React.Component {
   constructor (props) {
     super(props)
       this.validator = new FormValidator([
@@ -204,4 +204,4 @@ class InscriptionForm extends React.Component {
   }
 };
 
-export default InscriptionForm
+export default Inscription

@@ -10,7 +10,7 @@ class Search extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      all: null,
+      info: null,
       gender: [],
       sexual: [],
       age: [],
@@ -42,13 +42,8 @@ class Search extends React.Component {
     console.log(data)
     axios.post('/search/fetch', {data, id})
     .then((result) => {
-      const all = result.data
-      // console.log(all)
-      let info = Object.keys(all).map((val, key) =>
-        <FeedCard key={key} val={all[val]} />
-      )
       this.setState({
-        all: info
+        info: result.data
       })
     })
   }
@@ -56,18 +51,21 @@ class Search extends React.Component {
   
   
   render() {
-    console.log(this.state.value)
-    // the checkboxes can be arbitrarily deep. They will always be fetched and
-    // attached the `name` attribute correctly. `value` is optional
+    let {info} = this.state
+    let all = null
+    if (info) {
+      all = Object.keys(info).map((val, key) =>
+        <FeedCard key={key} val={info[val]} />
+      )
+    }
     return (
       <div>
         <div className='content'>
           <CheckboxGroup
-          checkboxDepth={2} // This is needed to optimize the checkbox group
+          checkboxDepth={2}
           name="gender"
           value={this.state.gender}
           onChange={this.genderChanged}>
-    
             <label><Checkbox value='Man'/> Man</label>
             <label><Checkbox value='Woman'/> Woman</label>
           </CheckboxGroup>
@@ -94,7 +92,7 @@ class Search extends React.Component {
           </div>
         </div>
       <div className='Feed'>
-        {this.state.all}
+        {all ? all : ''}
       </div>
       </div>
     )

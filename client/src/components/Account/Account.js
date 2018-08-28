@@ -10,7 +10,7 @@ import 'font-awesome/css/font-awesome.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'mdbreact/dist/css/mdb.css'
 import axios from 'axios'
-import FormValidator from './FormValidator'
+import FormValidator from '../FormValidator/FormValidator'
 
 function TabContainer(props) {
   return (

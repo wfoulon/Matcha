@@ -7,6 +7,7 @@ import Tab from '@material-ui/core/Tab'
 
 import Picture from './ProfilPic/ProfilPic'
 import ProfilMatches from './ProfilMatches/ProfilMatches'
+import ProfilTag from './ProfilTag/ProfilTag'
 import './ProfilContent.css'
 
 function TabContainer(props) {
@@ -52,6 +53,7 @@ class ProfilContent extends Component {
         )}
         {value === 2 && (
           <TabContainer>
+            <ProfilTag />
           </TabContainer>)}
         {value === 3 && (
           <TabContainer>

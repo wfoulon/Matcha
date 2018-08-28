@@ -2,14 +2,14 @@ import React, { Component } from 'react'
 import { Container, Row, Col, Input, Button, Card, CardBody } from 'mdbreact'
 import axios from 'axios'
 
-import FormValidator from '../../FormValidator'
+import FormValidator from '../FormValidator/FormValidator'
 
 import 'font-awesome/css/font-awesome.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'mdbreact/dist/css/mdb.css'
 import './Connexion.css'
 
-class ConnexionForm extends Component {
+class Connexion extends Component {
   constructor (props) {
     super(props)
     this.validator = new FormValidator([
@@ -121,4 +121,4 @@ class ConnexionForm extends Component {
   }
 }
 
-export default ConnexionForm
+export default Connexion

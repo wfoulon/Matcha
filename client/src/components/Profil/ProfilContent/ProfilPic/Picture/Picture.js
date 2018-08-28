@@ -29,7 +29,7 @@ class ProfilPic extends Component {
       const val = this.state.img
       return (
         <div className='Picture'>
-          <img className='Pic' src={require('../../../../../../../images/' + val['post_url'])} alt='' />
+          <img className='Pic' src={require('../../../../../../../images/users/' + val['post_url'])} alt='' />
           <button onClick={this.delImg}><img src={Dustbin} style={{ width: '45px', height: '45px', padding: '10px'}} alt='' /></button>
         </div>
       )
