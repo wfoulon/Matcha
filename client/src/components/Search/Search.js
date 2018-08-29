@@ -26,7 +26,8 @@ class Search extends React.Component {
       sexual: [],
       age: [],
       value: {min: 18, max: 35},
-      score: {min: 35, max: 65}
+      score: {min: 35, max: 65},
+      options: ['Age', 'Score', 'Gender']
     }
     this.handleDelete = this.handleDelete.bind(this)
     this.handleAddition = this.handleAddition.bind(this)
@@ -129,7 +130,7 @@ class Search extends React.Component {
               />
           </div>
           <div>
-            <Select placeholder='Sort By' />
+            <Select placeholder='Sort By' options={this.state.options}/>
           </div>
           <div>
             <input type='button' value='search' onClick={this.onSearch}/>

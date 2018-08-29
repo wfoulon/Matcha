@@ -429,11 +429,12 @@ app.post('/profil/imgage/delete', (req, res) => {
 
 app.post('/search/fetch', (req, res) => {
   const data = req.body.data
+  console.log(data.tags[0].text)
   if (data.gender.length > 0 && data.sexual.length > 0) {
-    let sql = 'SELECT * FROM `users` WHERE id != ? AND (age BETWEEN ? AND ?) AND (score BETWEEN ? AND ?) AND (sexual_orientation LIKE ? OR  sexual_orientation LIKE ? OR sexual_orientation LIKE ?) AND (gender LIKE ? OR gender LIKE ?)'
-    con.query(sql, [req.body.id, data.value.min, data.value.max, data.score.min, data.score.max, data.sexual[0], data.sexual[1], data.sexual[2], data.gender[0], data.gender[1], data.tags], (err, resu) => {
+    let sql = 'SELECT * FROM `users` WHERE id = (SELECT uid FROM `interest` WHERE interest lIKE ?) AND  id != ? AND (age BETWEEN ? AND ?) AND (score BETWEEN ? AND ?) AND (sexual_orientation LIKE ? OR  sexual_orientation LIKE ? OR sexual_orientation LIKE ?) AND (gender LIKE ? OR gender LIKE ?)'
+    con.query(sql, [data.tags[0].text, req.body.id, data.value.min, data.value.max, data.score.min, data.score.max, data.sexual[0], data.sexual[1], data.sexual[2], data.gender[0], data.gender[1], data.tags], (err, resu) => {
       if (err) throw err
-      console.log(resu)
+      // console.log(resu)
       res.send(resu)
       res.end()
     })
