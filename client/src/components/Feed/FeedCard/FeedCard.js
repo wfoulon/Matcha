@@ -8,9 +8,6 @@ import './FeedCard.css'
 class FeedCard extends Component {
     constructor (props) {
       super(props)
-      this.state = {
-        all:  this.props.val
-      }
     }
   
     onLike = (e) => {
@@ -31,7 +28,7 @@ class FeedCard extends Component {
     }
   
     render () {
-      const val = this.state.all
+      const val = this.props.val
       return (
         <div className='Content'>
           <div className='ProfilCard'>

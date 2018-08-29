@@ -2,7 +2,7 @@ import React from 'react'
 import { Checkbox, CheckboxGroup } from "react-checkbox-group"
 import InputRange from 'react-input-range'
 import { WithContext as ReactTags } from 'react-tag-input'
-import { Select } from 'semantic-ui-react'
+import { Select, Dropdown } from 'semantic-ui-react'
 import axios from 'axios'
 import FeedCard from '../Feed/FeedCard/FeedCard'
 import './Search.css'
@@ -15,6 +15,12 @@ const KeyCodes = {
 
 let placeholders = 'Add a new hobbie'
 
+const search = [ 
+  { key: 'Age', text: 'Age', value: 'Age' }, 
+  { key: 'Score', text: 'Score', value: 'Score' },
+  { key: 'Gender', text: 'Gender', value: 'Gender' }
+]
+
 const delimiters = [KeyCodes.comma, KeyCodes.enter]
 class Search extends React.Component {
   constructor(props) {
@@ -25,9 +31,10 @@ class Search extends React.Component {
       gender: [],
       sexual: [],
       age: [],
+      SortBy: '',
       value: {min: 18, max: 35},
       score: {min: 35, max: 65},
-      options: ['Age', 'Score', 'Gender']
+      // options: ['Age', 'Score', 'Gender']
     }
     this.handleDelete = this.handleDelete.bind(this)
     this.handleAddition = this.handleAddition.bind(this)
@@ -70,15 +77,34 @@ class Search extends React.Component {
       })
     })
   }
+
+  onChange = (e) => {
+    this.setState( {
+    SortBy: e.target.value
+    })
+  }
+  componentWillMount = () => {
+    if (this.state.SortBy) {
+      const id = localStorage.id
+      const data = this.state
+      axios.post('/search/fetch', {data, id})
+      .then((result) => {
+        this.setState({
+          info: result.data
+        })
+      })
+    }
+  }
   
   render() {
     let {info, tags} = this.state
     let all = null
     if (info) {
       all = Object.keys(info).map((val, key) =>
-        <FeedCard key={key} val={info[val]} />
-      )
-    }
+      <FeedCard key={key} val={info[val]} />
+    )
+  }
+  console.log(this.state.SortBy)
     return (
       <div>
         <div className='content'>
@@ -130,7 +156,17 @@ class Search extends React.Component {
               />
           </div>
           <div>
-            <Select placeholder='Sort By' options={this.state.options}/>
+            {/* <Select placeholder='Sort By' options={search} onClick={this.onSortBy}/> */}
+            {/* <Select placeholder='Sort By' fluid selection options={search} onChange={this.onSortBy}> */}
+            <select name='SortBy' onChange={this.onChange}>
+              <option defaultValue=''>Sort By</option>
+              <option value='AgeA'>Age (Ascending)</option>
+              <option value='AgeD'>Age (Decreasing)</option>
+              <option value='ScoreA'>Score (Ascending)</option>
+              <option value='ScoreD'>Score (Decreasing)</option>
+              <option value='DistanceA'>Distance (Ascending)</option>
+              <option value='DistanceD'>Distance (Decreasing)</option>
+            </select>
           </div>
           <div>
             <input type='button' value='search' onClick={this.onSearch}/>
