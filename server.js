@@ -18,17 +18,36 @@ app.set('view engine', 'jade')
 app.use(fileUpload())
 app.use('/public', express.static(path.join(__dirname, '/public')))
 
-app.listen(port, () => console.log(`Listening on port ${port}`))
 app.use(cors())
 app.use(fileUpload())
 app.use(bodyParser.json({ limit: '10Mb' }))
   .use(bodyParser.urlencoded({ extended: false }))
 
+let server = app.listen(port, () => { console.log('Listening on port ' + port) })
+let io = require('socket.io')(server, {pingTimeout: 5000, pingInterval: 10000, transports: ['polling']})
+  
 let con = mysql.createConnection({
   host: 'localhost',
   user: 'localhost',
   password: 'root42',
   multipleStatements: true
+})
+
+io.on('connection', (socket) => {
+/*   console.log('ici')
+  socket.on('visit', data => {
+    console.log(data)
+    let visitor = data.visitor
+    let visited = data.visited
+    console.log(visitor)
+    console.log(visited)
+    io.emit('notifVisit/' + visitor, visited)
+  })*/
+  console.log(socket.id)
+
+  socket.on('SEND_MESSAGE', data => {
+    io.emit('RECEIVE_MESSAGE', data)
+  })
 })
 
 let db = fs.readFileSync('./config/Matcha.sql', 'UTF-8')
