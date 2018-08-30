@@ -45,6 +45,8 @@
     "selectly": "^0.5.0",
     "semantic-ui-react": "^0.82.3",
     "sha1": "^1.1.1",
+    "socket.io": "^2.1.1",
+    "socket.io-client": "^2.1.1",
     "standard": "^11.0.1",
     "superagent": "^3.8.3",
     "uniqid": "^5.0.3",

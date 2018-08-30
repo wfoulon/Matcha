@@ -26,6 +26,8 @@
     "react-sortable": "^2.0.0",
     "react-tag-input": "^5.1.0",
     "react-window": "^1.0.3",
+    "socket.io": "^2.1.1",
+    "socket.io-client": "^2.1.1",
     "validator": "^10.4.0",
     "yarn": "^1.7.0"
   },

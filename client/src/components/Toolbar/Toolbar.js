@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import Logo from '../../assets/logo.svg'
 import Notif from '../../assets/notification.svg'
 import Search from '../../assets/search.svg'
+import Chat from '../../assets/chat.svg'
 
 import './Toolbar.css'
 
@@ -10,6 +11,7 @@ import IconButton from '@material-ui/core/IconButton'
 import AccountCircle from '@material-ui/icons/AccountCircle'
 import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu'
+// import io from 'socket.io-client'
 
 class Toolbar extends Component {
   constructor(props) {
@@ -17,10 +19,19 @@ class Toolbar extends Component {
     this.state = {
       log: false
     }
+    this.socket = this.props.socket
   }
   
   componentDidMount() {
     let login = localStorage.getItem('login')
+/*     let visited = "test"
+    this.socket.emit('visit', {visitor: login, visited})
+    // this.socket.on('test', (data) => {
+    //   console.log(data)
+    // })
+    this.socket.on('notifVisit/' + login, data => {
+      console.log(data)
+    }) */
     if (login) {
       this.setState({
         log: true
@@ -54,6 +65,7 @@ class Toolbar extends Component {
         <a href='/feed' className='Toolbar-items'>Matcha</a>
         {this.state.log ?
         <div>
+          <a href='/chat'><img className='Toolbar-items' src={Chat} alt=''/></a>
           <img className='Toolbar-items' src={Notif} alt='' />
           <a href='/search'><img className='Toolbar-items' src={Search} alt='' /></a>
           <IconButton aria-owns={open ? 'menu-appbar' : null} aria-haspopup='true' color='inherit' onClick={this.handleMenu}>
