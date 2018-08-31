@@ -164,7 +164,7 @@ class Inscription extends React.Component {
                   </div>
                   <div>
                     <select className="mdb-select" name='gender' onChange={this.onChange}>
-                      <option value="" disabled selected>Gender</option>
+                      <option defaultValue="">Gender</option>
                       <option value="Man">Man</option>
                       <option value="Woman">Woman</option>
                     </select>
@@ -172,7 +172,7 @@ class Inscription extends React.Component {
                   </div>
                   <div>
                     <select className="mdb-select" name='sexual_orientation' onChange={this.onChange}>
-                      <option value="" disabled selected>Sexual Orientation</option>
+                      <option defaultValue="">Sexual Orientation</option>
                       <option value="Heterosexual">Heterosexual</option>
                       <option value="Homosexual">Homosexual</option>
                       <option value="Bisexual">Bisexual</option>
@@ -192,8 +192,8 @@ class Inscription extends React.Component {
                   <Button color="cyan" onClick={this.onSubmit}>Register</Button>
                 </div>
                 <div className="text-center py-4 mt-3">
-                  <p>Already register ?</p>
-                  <Button href="/connexion" color="cyan">Connexion</Button>
+                  {/* <p>Already register ?</p> */}
+                  <Button href="/connexion" color="cyan">Already register ?</Button>
                 </div>
               </CardBody>
             </Card>

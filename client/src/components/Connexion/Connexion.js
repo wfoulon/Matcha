@@ -105,13 +105,15 @@ class Connexion extends Component {
                 <div className="text-center py-4 mt-3">
                   <Button color="cyan" onClick={this.onSubmit}>Connexion</Button>
                 </div>
-                {this.state.error ? <div>Wrong password or Username, please try again !</div> : '' }
-                {/* <div className="text-center py-4 mt-3">
-                  <Button href="/" color="cyan">Not Register ?</Button>
+                {this.state.error ? <div style={{textAlign: 'center'}}>Wrong password or Username, please try again !</div> : '' }
+                <div style={{display: 'flex', justifyContent: 'center'}}>
+                  <div className="text-center">
+                    <Button href="/inscription" color="cyan">Not Register ?</Button>
+                  </div>
+                  <div className="text-center">
+                    <Button href="/forgot_password" color="cyan">Forgot Password ?</Button>
+                  </div>
                 </div>
-                <div className="text-center py-4 mt-3">
-                  <Button href="/forgot_password" color="cyan">Forgot Password ?</Button>
-                </div> */}
               </CardBody>
             </Card>
           </Col>

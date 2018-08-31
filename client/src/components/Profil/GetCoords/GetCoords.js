@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import {geolocated} from 'react-geolocated'
 import Geocode from 'react-geocode'
 
-class GetCoords extends React.Component {
+class GetCoords extends Component {
   constructor (props) {
     super(props)
     this.state = {
