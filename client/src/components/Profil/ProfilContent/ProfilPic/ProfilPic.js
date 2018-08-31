@@ -21,7 +21,6 @@ class Picture extends Component {
           this.setState({
             upload: false
           })
-          console.log(this.state.upload)
         })
   }
 

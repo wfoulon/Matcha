@@ -423,6 +423,24 @@ app.post('/profil/image/profilpic', (req, res) => {
   }
 })
 
+app.post('/profil/image/display/profilpic', (req, res) => {
+  con.query('SELECT `image` FROM users WHERE id = ?', [req.body.id], (err, resu) => {
+    if (err) throw err
+    // console.log(resu[0].image)
+    if (resu[0].image) {
+      fs.readFile('./images/users/' + resu[0].image, 'base64', (err, contents) => {
+        if (err) throw err
+        // console.log(contents)
+        let content = 'data:image/png;base64,' + contents
+        res.send(content)
+        res.end()
+      })
+    } else {
+      res.end()
+    }
+  })
+})
+
 app.post('/profil/image/display', (req, res) => {
   let sql = 'SELECT * FROM `image` WHERE uid = ?'
   con.query(sql, [req.body.id], (err, resu) => {
@@ -485,16 +503,20 @@ app.post('/search/fetch', (req, res) => {
     let id = []
     con.query(reqTag, (err, resu) => {
       if (err) throw err
+      // console.log(resu)
       if (resu[0]) {
         let ids = null
         for (let i in resu) {
           id[i] = resu[i].uid
+          console.log(id)
           if (ids == null) {
             ids = "id = '" + id[i] + "'"
+            console.log(ids)
           } else {
             ids += " OR id = '" + id[i] + "'"
           }
           if (i.toString() === (data.length - 1).toString()) {
+            console.log(ids)
             let idUsers = 'SELECT * FROM users WHERE (' + ids + ')'
             reqAll(idUsers, reqAge, reqScore, reqGender, reqSexual, filter)
           }
@@ -504,45 +526,26 @@ app.post('/search/fetch', (req, res) => {
   }
   function reqAll (idUsers, reqAge, reqScore, reqGender, reqSexual, filter) {
     if (reqGender.length === 0 && reqSexual.length > 0) {
-      let finalReq = idUsers + ' AND age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ' AND score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + " AND (sexual_orientation LIKE '" + reqSexual[0] + "' OR sexual_orientation LIKE '" + reqSexual[1] + "' OR sexual_orientation LIKE '" + reqSexual[2] + "') AND id NOT IN (SELECT `match` FROM `like` WHERE uid =" + req.body.id + ') AND id !=' + req.body.id
+      let finalReq = idUsers + ' AND age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ' AND score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + " AND (sexual_orientation LIKE '" + reqSexual[0] + "' OR sexual_orientation LIKE '" + reqSexual[1] + "' OR sexual_orientation LIKE '" + reqSexual[2] + "') AND id NOT IN (SELECT `match` FROM `like` WHERE uid = " + req.body.id + ') AND id != ' + req.body.id
       fuckingUltimateReq(finalReq, filter)
-      // con.query(finalReq, (err, resul) => {
-      //   if (err) throw err
-      //   res.send(resul)
-      //   res.end()
-      // })
     } else if (reqSexual.length === 0 && reqGender.length > 0) {
-      let finalReq = idUsers + ' AND age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ' AND score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + " AND (gender LIKE '" + reqGender[0] + "' OR gender LIKE '" + reqGender[1] + "') AND id NOT IN (SELECT `match` FROM `like` WHERE uid =" + req.body.id + ') AND id !=' + req.body.id
+      let finalReq = idUsers + ' AND age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ' AND score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + " AND (gender LIKE '" + reqGender[0] + "' OR gender LIKE '" + reqGender[1] + "') AND id NOT IN (SELECT `match` FROM `like` WHERE uid = " + req.body.id + ') AND id != ' + req.body.id
       fuckingUltimateReq(finalReq, filter)
-      // con.query(finalReq, (err, resul) => {
-      //   if (err) throw err
-      //   res.send(resul)
-      //   res.end()
-      // })
     } else if (reqSexual.length === 0 && reqGender.length === 0) {
-      let finalReq = idUsers + ' AND age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ' AND score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + 'AND id NOT IN (SELECT `match` FROM `like` WHERE uid =' + req.body.id + ') AND id !=' + req.body.id
+      let finalReq = idUsers + ' AND age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ' AND score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + ' AND id NOT IN (SELECT `match` FROM `like` WHERE uid = ' + req.body.id + ') AND id != ' + req.body.id
+      // console.log(finalReq)
       fuckingUltimateReq(finalReq, filter)
-      // con.query(finalReq, (err, resul) => {
-      //   if (err) throw err
-      //   res.send(resul)
-      //   res.end()
-      // })
     } else {
-      let finalReq = idUsers + ' AND age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ' AND score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + " AND (gender LIKE '" + reqGender[0] + "' OR gender LIKE '" + reqGender[1] + "') AND (sexual_orientation LIKE '" + reqSexual[0] + "' OR sexual_orientation LIKE '" + reqSexual[1] + "' OR sexual_orientation LIKE '" + reqSexual[2] + "') AND id NOT IN (SELECT `match` FROM `like` WHERE uid =" + req.body.id + ') AND id !=' + req.body.id
+      let finalReq = idUsers + ' AND age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ' AND score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + " AND (gender LIKE '" + reqGender[0] + "' OR gender LIKE '" + reqGender[1] + "') AND (sexual_orientation LIKE '" + reqSexual[0] + "' OR sexual_orientation LIKE '" + reqSexual[1] + "' OR sexual_orientation LIKE '" + reqSexual[2] + "') AND id NOT IN (SELECT `match` FROM `like` WHERE uid = " + req.body.id + ') AND id != ' + req.body.id
       fuckingUltimateReq(finalReq, filter)
-      // con.query(finalReq, (err, resul) => {
-      //   if (err) throw err
-      //   res.send(resul)
-      //   res.end()
-      // })
     }
   }
   function reqWithoutTag (reqScore, reqAge, reqGender, reqSexual, filter) {
-    let sql = 'SELECT * FROM `users` WHERE id != ' + req.body.id + ' AND (age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ') AND (score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + ") AND (sexual_orientation LIKE '" + reqSexual[0] + "' OR  sexual_orientation LIKE '" + reqSexual[1] + "' OR sexual_orientation LIKE '" + reqSexual[2] + "') AND (gender LIKE '" + reqGender[0] + "' OR gender LIKE '" + reqGender[1] + "' ) AND id NOT IN (SELECT `match` FROM `like` WHERE uid =" + req.body.id + ')'
+    let sql = 'SELECT * FROM `users` WHERE id != ' + req.body.id + ' AND (age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ') AND (score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + ") AND (sexual_orientation LIKE '" + reqSexual[0] + "' OR  sexual_orientation LIKE '" + reqSexual[1] + "' OR sexual_orientation LIKE '" + reqSexual[2] + "') AND (gender LIKE '" + reqGender[0] + "' OR gender LIKE '" + reqGender[1] + "' ) AND id NOT IN (SELECT `match` FROM `like` WHERE uid = " + req.body.id + ')'
     fuckingUltimateReq(sql, filter)
   }
   function reqWithoutGender (reqScore, reqAge, reqSexual, filter) {
-    let sql = 'SELECT * FROM `users` WHERE id != ' + req.body.id + ' AND (age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ') AND (score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + ") AND (sexual_orientation LIKE '" + reqSexual[0] + "' OR  sexual_orientation LIKE '" + reqSexual[1] + "' OR sexual_orientation LIKE '" + reqSexual[2] + "') AND id NOT IN (SELECT `match` FROM `like` WHERE uid =" + req.body.id + ')'
+    let sql = 'SELECT * FROM `users` WHERE id != ' + req.body.id + ' AND (age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ') AND (score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + ") AND (sexual_orientation LIKE '" + reqSexual[0] + "' OR  sexual_orientation LIKE '" + reqSexual[1] + "' OR sexual_orientation LIKE '" + reqSexual[2] + "') AND id NOT IN (SELECT `match` FROM `like` WHERE uid = " + req.body.id + ')'
     fuckingUltimateReq(sql, filter)
   }
   function reqWithoutSexual (reqScore, reqAge, reqGender, filter) {
@@ -550,7 +553,7 @@ app.post('/search/fetch', (req, res) => {
     fuckingUltimateReq(sql, filter)
   }
   function reqWithoutSexualGender (reqScore, reqAge, filter) {
-    console.log(req.body.id)
+    // console.log(req.body.id)
     let sql = 'SELECT * FROM `users` WHERE id != ' + req.body.id + ' AND (age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ') AND (score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + ') AND id NOT IN (SELECT `match` FROM `like` WHERE uid =' + req.body.id + ')'
     fuckingUltimateReq(sql, filter)
   }

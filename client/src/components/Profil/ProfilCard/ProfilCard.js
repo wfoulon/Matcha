@@ -28,22 +28,27 @@ class profilCard extends React.Component {
       dataURL = output.src
       axios.post('/profil/image/profilpic', {dataURL, id})
       .then((result) => {
-        console.log(result)
-        console.log(result.data[0].image)
-        this.setState({
-          img : result.data[0].img
-        })
       })
     }
     reader.readAsDataURL(input.files[0])
+  }
+
+  componentDidMount = () => {
+    const id = localStorage.id
+    axios.post('/profil/image/display/profilpic', {id})
+    .then((result) => {
+      console.log(result)
+      this.setState({
+          img : result.data
+        })
+    })
   }
 
   render () {
     return (
       <div className='Content'>
         <div className='ProfilCard'>
-          {this.state.img}
-          {/* <img src={require('../../../../../images/users/fzud321unkjlgkt5hv.png')} alt=''/> */}
+          <img style={{width: '200px'}} src={this.state.img} alt=''/>
           <img src='' alt='' id='new' style={{display: 'none'}}/>
           <input id='takePic' type='file' style={{width: '50px', display: 'none'}} onChange={this.openFile} />
           <button onClick={this.handlePic}><i className="fas fa-camera"></i></button>

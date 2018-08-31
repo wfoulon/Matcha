@@ -2,7 +2,7 @@ import React from 'react'
 import { Checkbox, CheckboxGroup } from "react-checkbox-group"
 import InputRange from 'react-input-range'
 import { WithContext as ReactTags } from 'react-tag-input'
-import { Select, Dropdown, Input, Button } from 'semantic-ui-react'
+import { Button } from 'semantic-ui-react'
 import axios from 'axios'
 import FeedCard from '../Feed/FeedCard/FeedCard'
 import './Search.css'
@@ -14,13 +14,6 @@ const KeyCodes = {
 }
 
 let placeholders = 'Enter tag'
-
-const search = [ 
-  { key: 'Age', text: 'Age', value: 'Age' }, 
-  { key: 'Score', text: 'Score', value: 'Score' },
-  { key: 'Gender', text: 'Gender', value: 'Gender' }
-]
-
 
 const delimiters = [KeyCodes.comma, KeyCodes.enter]
 class Search extends React.Component {
@@ -56,9 +49,6 @@ class Search extends React.Component {
     });
   }
   
-  filter () {
-    console.log(this.state.SortBy)
-  }
   
   genderChanged = (gender) => {
     this.setState({
@@ -93,20 +83,6 @@ class Search extends React.Component {
         })
       })
   }
-
-  // componentDidCatch = () => {
-  //   console.log(this.state.SortBy)
-  //   if (this.state.SortBy) {
-  //     const id = localStorage.id
-  //     const data = this.state
-  //     axios.post('/search/fetch', {data, id})
-  //     .then((result) => {
-  //       this.setState({
-  //         info: result.data
-  //       })
-  //     })
-  //   }
-  // }
   
   render() {
     let {info, tags} = this.state
@@ -170,7 +146,6 @@ class Search extends React.Component {
                 />
           </div>
           <div>
-            {/* <input type='button' value='search' onClick={this.onSearch}/> */}
             <Button positive floated='left' value='search' onClick={this.onSearch}>Search</Button>
           </div>
           <div>

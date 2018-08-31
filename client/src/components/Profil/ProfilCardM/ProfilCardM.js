@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import Watson from '../../../assets/watson.jpg'
+
 import dislike from '../../../assets/cancel.svg'
 
 class ProfilCardM extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      infPro: this.props.val
+      infPro: this.props.val,
+      img: null
     }
   }
 
@@ -19,12 +20,23 @@ class ProfilCardM extends Component {
     })
   }
 
+  componentDidMount = () => {
+    const id = localStorage.id
+    axios.post('/profil/image/display/profilpic', {id})
+    .then((result) => {
+      console.log(result)
+      this.setState({
+          img : result.data
+        })
+    })
+  }
+
   render () {
     const val = this.state.infPro
     return (
       <div className='Content'>
         <div className='ProfilCard'>
-          <img src={Watson} alt='' />
+          <img src={this.state.img} alt='' />
           <div className='card-body'>
             <a href={'/profil/' + val['id']}><h4 className='card-title'>{val['fname']} {val['lname']}</h4></a>
             <p className='card-text text-center'>{val['gender']} {val['sexual_orientation']}</p>

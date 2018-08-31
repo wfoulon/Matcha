@@ -32,9 +32,11 @@ class ProfilTag extends Component {
       tags: tags.filter((tag, index) => index !== i)
     })
     const id = localStorage.id
-    axios.post('/profil/tag/delete', {tags: tags[i]['text'], id})
-      .then((result) => {
-      })
+    if (this.state.tags.length > 0) {
+      axios.post('/profil/tag/delete', {tags: tags[i]['text'], id})
+        .then((result) => {
+        })
+    }
   }
 
   componentWillMount () {
@@ -81,7 +83,7 @@ class ProfilTag extends Component {
   render () {
     const { tags, display } = this.state
     if (display[0]) {
-      let interests = display[0].map((interest, i) => (
+      display[0].map((interest, i) => (
         <p key={i}>{interest['interest']}</p>
       ))
     }
