@@ -28,7 +28,7 @@ let io = require('socket.io')(server, {pingTimeout: 5000, pingInterval: 10000, t
   
 let con = mysql.createConnection({
   host: 'localhost',
-  user: 'matcha',
+  user: 'localhost',
   password: 'root42',
   multipleStatements: true
 })
@@ -47,6 +47,8 @@ io.on('connection', (socket) => {
 
   socket.on('SEND_MESSAGE', data => {
     io.emit('RECEIVE_MESSAGE', data)
+    console.log(data)
+    console.log(data.author)
   })
 })
 

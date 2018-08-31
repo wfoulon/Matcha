@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-/* import { Container, Row, Col, Card, CardBody } from 'mdbreact' */
+import FormValidator from '../FormValidator/FormValidator'
 
 class Chat extends React.Component {
     /* constructor (props) {
@@ -35,7 +35,34 @@ class Chat extends React.Component {
 */
 constructor(props){
     super(props);
-
+    /* this.validator = new FormValidator([
+    {
+        field: 'uname',
+        method: 'isEmpty',
+        validWhen: false,
+        message: 'Username is required.'
+    },
+    {
+        field: 'uname',
+        method: 'matches',
+        args: [/^[a-zA-Z0-9]+([a-zA-Z0-9](_|-| )[a-zA-Z0-9])*[a-zA-Z0-9]+$/],
+        validWhen: true,
+        message: 'Username 
+    },
+    {
+        field: 'pwd',
+        method: 'isEmpty',
+        validWhen: false,
+        message: 'Password is required.'
+    },
+    {
+        field: 'pwd',
+        method: 'matches',  
+        args: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/],
+        validWhen: true,
+        message: 'a-z / A-Z / 8 minimum'
+    },
+    ])*/
     this.state = {
         username: localStorage.login,
         message: '',
@@ -47,18 +74,19 @@ constructor(props){
     })
 
     const addMessage = data => {
-        console.log(data)
+/*         console.log(data) */
         this.setState({messages: [...this.state.messages, data]})
-        console.log(this.state.messages)
+/*         console.log(this.state.message) */
     };
 
     this.sendMessage = (e) => {
         e.preventDefault();
         this.socket.emit('SEND_MESSAGE', {
             author: this.state.username,
-            message: this.state.message
+            message: this.state.message,
         })
         this.setState({message: ''})
+/*         console.log(this.state.message) */
 
     }
 }
@@ -69,7 +97,7 @@ render(){
                 <div className="col-4">
                     <div className="card">
                         <div className="card-body">
-                            <div className="card-title">Global Chat</div>
+                            <div className="card-title">Chat</div>
                             <hr/>
                             <div className="messages">
                                 {this.state.messages.map((message, key) => {
@@ -81,9 +109,9 @@ render(){
 
                         </div>
                         <div className="card-footer">
-                            <input type="text" placeholder="Username" value={this.state.username} onChange={e => this.setState({username: e.target.value})} className="form-control"/>
+                            <input name="uname" type="text" placeholder="Username" className="form-control" value={this.state.username} readOnly />
                             <br/>
-                            <input type="text" placeholder="Message" className="form-control" value={this.state.message} onChange={e => this.setState({message: e.target.value})}/>
+                            <input name="message" type="text" placeholder="Message" className="form-control" value={this.state.message} onChange={e => this.setState({message: e.target.value})}/>
                             <br/>
                             <button onClick={this.sendMessage} className="btn btn-primary form-control">Send</button>
                         </div>
