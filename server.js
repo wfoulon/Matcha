@@ -28,7 +28,7 @@ let io = require('socket.io')(server, {pingTimeout: 5000, pingInterval: 10000, t
   
 let con = mysql.createConnection({
   host: 'localhost',
-  user: 'localhost',
+  user: 'matcha',
   password: 'root42',
   multipleStatements: true
 })
