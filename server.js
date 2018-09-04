@@ -34,7 +34,7 @@ let con = mysql.createConnection({
 })
 
 io.on('connection', (socket) => {
-/*   console.log('ici')
+  /*   console.log('ici')
   socket.on('visit', data => {
     console.log(data)
     let visitor = data.visitor
@@ -43,12 +43,35 @@ io.on('connection', (socket) => {
     console.log(visited)
     io.emit('notifVisit/' + visitor, visited)
   })*/
-  console.log(socket.id)
-
-  socket.on('SEND_MESSAGE', data => {
-    io.emit('RECEIVE_MESSAGE', data)
-    console.log(data)
-    console.log(data.author)
+    console.log(socket.id)
+    socket.on('SEND_MESSAGE', data => {
+      console.log(socket.rooms)
+      console.log(data)
+      let uname = ent.encode(data.author)
+      let message = ent.encode(data.message)
+      let sql = 'SELECT * FROM users WHERE uname = ?'
+      con.query(sql, [uname], (err, res) => {
+        if (err) throw err
+        if (res[0].uname === uname){
+          let created = new Date()
+          let sql1 = 'INSERT INTO message (uid, text, creation_date) VALUES (?, ?, ?)'
+          con.query(sql1, [res[0].id, message, created], (err, res2) => {
+            if (err) throw err
+            else {
+              let uid = data.id
+              let sql2 = 'SELECT * FROM `like` WHERE `status` = 2 AND `uid` = ?'
+              con.query(sql2, [uid], (err, res) => {
+                if (err) throw err
+                else{
+                  socket.join(res[0].token_room)
+                  io.to(res[0].token_room).emit('RECEIVE_MESSAGE', data)
+                  console.log(data)
+                }
+              })
+            }
+          })
+        }
+      })
   })
 })
 
@@ -339,14 +362,15 @@ app.post('/like', (req, res) => {
         if (err) throw err
         if (resul[0]) {
           if (req.body.id.to === resul[0].match.to) {
-            let sql = 'INSERT INTO `like`(`uid`, `match`, `status`) VALUES (?, ?, 2); UPDATE `like` SET status = 2 WHERE `uid` = ? AND `match` = ?'
-            con.query(sql, [req.body.id, req.body.id_match, req.body.id_match, req.body.id], (err, result) => {
+            let token_room = sha1(uniqid())
+            let sql = 'INSERT INTO `like`(`uid`, `match`, `status`, `token_room`) VALUES (?, ?, 2, ?); UPDATE `like` SET status = 2 WHERE `uid` = ? AND `match` = ?; UPDATE `like` SET token_room = ? WHERE `uid` = ? AND `match` = ?'
+            con.query(sql, [req.body.id, req.body.id_match, token_room, req.body.id_match, req.body.id, token_room, req.body.id_match, req.body.id], (err, result) => {
               if (err) throw err
               console.log('letsgo')
             })
           }
         } else {
-          let sql = 'INSERT INTO `like`(`uid`, `match`, `status`) VALUES (?, ?, 1)'
+          let sql = 'INSERT INTO `like`(`uid`, `match`, `status`, `token_room`) VALUES (?, ?, 1, NULL)'
           con.query(sql, [req.body.id, req.body.id_match], (err, result) => {
             if (err) throw err
           })
@@ -363,12 +387,16 @@ app.post('/profil/match/dislike', (req, res) => {
   con.query(sql, [req.body.id, req.body.id_match], (err, resu) => {
     if (err) throw err
     if (resu[0]) {
-      let sql = 'UPDATE `like` SET status = -1 WHERE uid = ? AND `match` = ?'
+      let sql = 'UPDATE `like` SET status = -1 WHERE `uid` = ? AND `match` = ?'
       con.query(sql, [resu[0].uid, resu[0].match], (res, resul) => {
         if (err) throw err
       })
+      let sql1 = 'UPDATE `like` SET token_room = NULL WHERE `uid` = ? AND `match` = ?'
+      con.query(sql1, [resu[0].uid, resu[0].match], (res, resul) => {
+        if (err) throw err
+      })
     } else {
-      let sql = 'INSERT INTO `like`(`uid`, `match`, `status`) VALUES (?, ?, -1)'
+      let sql = 'INSERT INTO `like`(`uid`, `match`, `status`, `token_room`) VALUES (?, ?, -1, NULL)'
       con.query(sql, [req.body.id, req.body.id_match], (err, result) => {
         if (err) throw err
       })

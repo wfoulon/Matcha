@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS `like` (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     uid INT NOT NULL,
     `match` INT NOT NULL,
-    status INT(1) NULL DEFAULT 0
+    status INT(1) NULL DEFAULT 0,
+    token_room VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS `image` (
@@ -36,3 +37,10 @@ CREATE TABLE IF NOT EXISTS `image` (
     uid INT NOT NULL,
     post_url VARCHAR(300) NULL
 ) 
+
+/* CREATE TABLE IF NOT EXISTS `message` (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    uid INT NOT NULL,
+    text VARCHAR(255),
+    creation_date DATETIME
+); */
