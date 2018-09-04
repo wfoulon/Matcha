@@ -2,6 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
+import 'react-notifications/lib/notifications.css'
+
 // import { BrowserRouter, Route, Switch } from 'react-router-dom'
 // import { render } from 'react-dom'
 // import Inscription from './inscription'

@@ -2,6 +2,10 @@ import React from 'react'
 import axios from 'axios'
 
 import GetCoords from '../GetCoords/GetCoords'
+import Female from '../../../assets/femenine.svg'
+import Male from '../../../assets/masculine.svg'
+import Orien from '../../../assets/genders.svg'
+import Trophy from '../../../assets/winner.svg'
 import './ProfilCard.css'
 
 class profilCard extends React.Component {
@@ -37,7 +41,6 @@ class profilCard extends React.Component {
     const id = localStorage.id
     axios.post('/profil/image/display/profilpic', {id})
     .then((result) => {
-      console.log(result)
       this.setState({
           img : result.data
         })
@@ -45,18 +48,34 @@ class profilCard extends React.Component {
   }
 
   render () {
+    const { img } = this.state
+    const val = this.props.info
     return (
-      <div className='Content'>
+      <div className='ContentProfil'>
         <div className='ProfilCard'>
-          <img style={{width: '200px'}} src={this.state.img} alt=''/>
-          <img src='' alt='' id='new' style={{display: 'none'}}/>
-          <input id='takePic' type='file' style={{width: '50px', display: 'none'}} onChange={this.openFile} />
-          <button onClick={this.handlePic}><i className="fas fa-camera"></i></button>
+          <div className='ProfilImg'>
+            <img src={img} alt='' className='imgProfil'/>
+            <img src='' alt='' id='new' style={{display: 'none'}}/>
+          </div>
+          <div>
+            <input id='takePic' type='file' style={{width: '50px', display: 'none'}} onChange={this.openFile} />
+            <button onClick={this.handlePic}><i className="fas fa-camera"></i></button>
+          </div>
           <div className='card-body'>
-            <h4 className=''>{localStorage.fname} {localStorage.lname}</h4>
-            <p className=''>{localStorage.gender} {localStorage.sex}</p>
-            <p>{localStorage.age} years old</p>
-            <p className=''>Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <div className='flex-center'>
+              <div className=''>
+                {!val ? '' : <h4 className=''>{val[0].fname} {val[0].lname}</h4>}
+              </div>
+              {!val ? '' : <div className='ProfilSexual'><img src={Trophy} alt='' className='imgGender'/> <p>{val[0].score}</p></div>}
+            </div>
+            <div className='flex-center'>
+              <div className=''>
+                {!val ? '' : val[0].gender === 'Woman' ? <img src={Female} alt='' className='imgGender'/> : <img src={Male} alt='' className='imgGender'/> }
+              </div>
+              {!val ? '' : <div className='ProfilSexual'><img src={Orien} alt='' className='imgGender'/> <p>{val[0].sexual_orientation}</p></div>}
+            </div>
+            {!val ? '' : <p>{val[0].age} years old</p> }
+            {!val ? '' : <p>{val[0].bio}</p> }
             <div> <GetCoords /> </div>
           </div>
         </div>

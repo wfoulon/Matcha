@@ -1,65 +1,106 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import {NotificationContainer, NotificationManager} from 'react-notifications'
 
 import like from '../../../assets/heart.svg'
 import dislike from '../../../assets/cancel.svg'
+import Female from '../../../assets/femenine.svg'
+import Male from '../../../assets/masculine.svg'
+import Orien from '../../../assets/genders.svg'
+import Trophy from '../../../assets/winner.svg'
 
 import './FeedCard.css'
 
 class FeedCard extends Component {
-    constructor (props) {
-      super(props)
-      this.state = {
-        img: null
-      }
+  constructor (props) {
+    super(props)
+    this.state = {
+      img: null
     }
+  }
   
-    onLike = (e) => {
+    
+  onDislike = (e, type) => {
+    e.preventDefault()
+    const id = localStorage.id
+    const id_match = this.props.val.id
+    axios.post('/profil/match/dislike', {id, id_match})
+    .then((result) => {
+    })
+    switch (type) {
+      case 'info':
+      NotificationManager.info('Info message')
+      break
+      case 'success':
+      NotificationManager.success('DISLIKE')
+      break
+      case 'warning':
+      NotificationManager.warning('Warning message', 'Close after 3000ms', 3000)
+      break
+      case 'error':
+      NotificationManager.error('Error message', 'Click me!', 5000, () => {
+        alert('callback')
+      })
+      break
+    }
+  }
+    
+    onLike = (e, type) => {
+      e.preventDefault()
       const id = localStorage.id
       const id_match = this.props.val.id
       axios.post('/like', {id, id_match})
       .then((result) => {
       })
-    }
-  
-    onDislike = (e) => {
-      console.log('dislike')
-      const id = localStorage.id
-      const id_match = this.props.val.id
-      axios.post('/dislike', {id, id_match})
-      .then((result) => {
-      })
+      switch (type) {
+        case 'info':
+        NotificationManager.info('Info message')
+        break
+        case 'success':
+        NotificationManager.success('LIKE')
+        break
+        case 'warning':
+        NotificationManager.warning('Warning message', 'Close after 3000ms', 3000)
+        break
+        case 'error':
+        NotificationManager.error('Error message', 'Click me!', 5000, () => {
+          alert('callback')
+        })
+        break
+      }
     }
 
-    // componentDidMount = () => {
-    //   const id = this.props.val.id
-    //   axios.post('/profil/image/display/profilpic', {id})
-    //   .then((result) => {
-    //     console.log(result)
-    //     this.setState({
-    //         img : result.data
-    //       })
-    //   })
-    // }
-  
     render () {
       const val = this.props.val
       return (
-        <div className='Content'>
+        <div className='ContentProfil'>
           <div className='ProfilCard'>
-            {val['image'] ? <img style={{width: '200px'}} src={require('../../../../../images/users/' + val['image'])} alt='' /> : <img src={require('../../../assets/defprofil.png')} alt='' />}
+            <div className='ProfilImg'>
+              {val['image'] ? <img style={{width: '200px'}} src={require('../../../../../images/users/' + val['image'])} alt='' /> : <img src={require('../../../assets/defprofil.png')} alt='' />}
+            </div>
             <div className='card-body'>
-              <a href={'/profil/' + val['id']}><h4 className='card-title'>{val['fname']} {val['lname']}</h4></a>
-              <p className='card-text text-center'>{val['gender']} {val['sexual_orientation']}</p>
-              <p>{val['age']} years old</p>
-              <p className=''>Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              <div className='flex-center'>
+                <div className=''>
+                  {!val ? '' : <h4 className=''>{val['fname']} {val['lname']}</h4>}
+                </div>
+                {!val ? '' : <div className='ProfilSexual'><img src={Trophy} alt='' className='imgGender'/> <p>{val['score']}</p></div>}
+              </div>
+              <div className='flex-center'>
+                <div className=''>
+                  {!val ? '' : val['gender'] === 'Woman' ? <img src={Female} alt='' className='imgGender'/> : <img src={Male} alt='' className='imgGender'/> }
+                </div>
+                {!val ? '' : <div className='ProfilSexual'><img src={Orien} alt='' className='imgGender'/> <p>{val['sexual_orientation']}</p></div>}
+              </div>
+              {!val ? '' : <p>{val['age']} years old</p> }
+              {!val ? '' : <p>{val['bio']}</p> }
             </div>
             <div className='Card-vote'>
-                <img src={like} style={{width: '50px'}} alt='' onClick={this.onLike}/>
-                <img src={dislike} style={{width: '50px'}} alt='' onClick={this.onDislike}/>
+              <img src={like} style={{width: '50px'}} alt='' onClick={e => this.onLike(e, 'success')}/>
+              <img src={dislike} style={{width: '50px'}} alt='' onClick={e => this.onDislike(e, 'success')}/>
             </div>
           </div>
-        </div>
+          <NotificationContainer/>
+      </div>
       )
     }
   }

@@ -11,6 +11,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'mdbreact/dist/css/mdb.css'
 import axios from 'axios'
 import FormValidator from '../FormValidator/FormValidator'
+import { Form, TextArea } from 'semantic-ui-react'
 
 function TabContainer(props) {
   return (
@@ -120,17 +121,24 @@ class Account extends Component {
      message: 'Username format is not valid.'
    },
    {   
-     field: 'newemail',
-     method: 'isEmpty',
-     validWhen: false,
-     message: 'Email is required.'
- },
- {
-     field: 'newemail',
-     method: 'isEmail',
-     validWhen: true,
-     message: 'That is not a valid email.',
- },
+    field: 'newemail',
+    method: 'isEmpty',
+    validWhen: false,
+    message: 'Email is required.'
+  },
+  {  
+    field: 'newemail',
+    method: 'isEmail',
+    validWhen: true,
+    message: 'That is not a valid email.',
+  },
+  {
+    field: 'bio',
+    method: 'matches',
+    args: [/^(?=.*[A-Za-z0-9áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸ])[áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸA-Za-z0-9 _-]*$/],
+    validWhen: true,
+    message: ''
+  },
         ])
         this.state = {
             uname: '',
@@ -144,6 +152,7 @@ class Account extends Component {
             age: '',
             gender: '',
             sexual_orientation: '',
+            bio: '',
             validation: this.validator.valid(),
             value : 0
         }
@@ -182,8 +191,9 @@ class Account extends Component {
         this.submitted = true
         // if (validation.isValid) {
             const id = localStorage.id
-            const {lname, fname, age, gender, sexual_orientation} = this.state
-            axios.post('/profile', {id, lname, fname, age, gender, sexual_orientation})
+            const {lname, fname, age, gender, sexual_orientation, bio} = this.state
+            console.log(bio)
+            axios.post('/settings', {id, lname, fname, age, gender, sexual_orientation, bio})
                 .then((result) => {
 
             })
@@ -260,7 +270,7 @@ class Account extends Component {
                         </div>
                         <div>
                             <select className="mdb-select" name='gender' onChange={this.onChange}>
-                                <option value="" disabled selected>Gender</option>
+                                <option defaultValue="">Gender</option>
                                 <option value="Man">Man</option>
                                 <option value="Woman">Woman</option>
                                 <option value="Other">Other</option>
@@ -271,11 +281,16 @@ class Account extends Component {
                         </div>
                         <div>
                         <select className="mdb-select" name='sexual_orientation' onChange={this.onChange}>
-                                <option value="" disabled selected>Sexual Orientation</option>
+                                <option defaultValue="">Sexual Orientation</option>
                                 <option value="Heterosexual">Heterosexual</option>
                                 <option value="Homosexual">Homosexual</option>
                                 <option value="Bisexual">Bisexual</option>
                         </select>                          
+                        </div>
+                        <div>
+                          <Form>
+                            <TextArea placeholder='Tell us more' name='bio' onChange={this.onChange}/>
+                          </Form>
                         </div>
                       </div>
                       <div className="text-center py-4 mt-3">
