@@ -25,7 +25,7 @@ app.use(bodyParser.json({ limit: '10Mb' }))
 
 let server = app.listen(port, () => { console.log('Listening on port ' + port) })
 let io = require('socket.io')(server, {pingTimeout: 5000, pingInterval: 10000, transports: ['polling']})
-  
+
 let con = mysql.createConnection({
   host: 'localhost',
   user: 'matcha',
@@ -207,6 +207,15 @@ app.post('/connexion', (req, res) => {
   })
 })
 
+app.post('/profil/getdata', (req, res) => {
+  // if (!req.body) {}
+  con.query('SELECT * FROM users WHERE id = ?', [req.body.id], (err, resu) => {
+    if (err) throw err
+    res.send(resu)
+    res.end()
+  })
+})
+
 app.post('/changepassword', (req, res) => {
   let id = req.body.id
   let pwd = crypto.createHash('whirlpool').update(req.body.pwd).digest('hex')
@@ -225,15 +234,15 @@ app.post('/changepassword', (req, res) => {
   })
 })
 
-app.post('/profile', (req, res) => {
+app.post('/settings', (req, res) => {
   let id = req.body.id
   let lname = ent.encode(req.body.lname)
   let fname = ent.encode(req.body.fname)
   let age = ent.encode(req.body.age)
   let gender = ent.encode(req.body.gender)
   let sexe = ent.encode(req.body.sexual_orientation)
-  let sql = 'UPDATE users SET lname = ?, fname = ?, age = ?, gender = ?, sexual_orientation = ? WHERE id = ?'
-  con.query(sql, [lname, fname, age, gender, sexe, id], (err, res) => {
+  let sql = 'UPDATE users SET lname = ?, fname = ?, age = ?, gender = ?, sexual_orientation = ?, bio = ? WHERE id = ?'
+  con.query(sql, [lname, fname, age, gender, sexe, req.body.bio, id], (err, res) => {
     if (err) throw err
   })
 })
@@ -329,11 +338,20 @@ app.post('/feed/display', (req, res) => {
     let y = 5
     let agemin = age - (x)
     let agemax = (age - (y) + (x) + (x))
-    let sql = 'SELECT * from users WHERE sexual_orientation = ? AND gender != ? AND age BETWEEN ? AND ?'
-    con.query(sql, [sexual, gender, agemin, agemax], (err, resul) => {
+    let sql = 'SELECT * from users WHERE sexual_orientation = ? AND gender != ? AND age BETWEEN ? AND ? AND id NOT IN (SELECT `match` FROM `like` WHERE uid = ?)'
+    con.query(sql, [sexual, gender, agemin, agemax, req.body.id], (err, resul) => {
       if (err) throw err
-      res.send(resul)
-      res.end()
+      let tab = []
+      for (let k in resul) {
+        resul[k].distance = getDistanceFromLatLonInKm(resul[k].lat, resul[k].ln, result[0].lat, result[0].ln)
+        if (resul[k].distance <= 25) {
+          tab.push(resul[k])
+          if (parseInt(k, 10) === resul.length - 1) {
+            res.send(tab)
+            res.send()
+          }
+        }
+      }
     })
   })
 })
@@ -351,11 +369,7 @@ app.post('/like', (req, res) => {
   let sql = 'SELECT * FROM `like` WHERE `uid` = ? AND `match` = ?'
   con.query(sql, [req.body.id, req.body.id_match], (err, resu) => {
     if (err) throw err
-    console.log('first')
-    console.log(req.body.id_match)
-    console.log(req.body.id)
     if (resu[0]) {
-      console.log('already')
     } else {
       let sql = 'SELECT * FROM `like` WHERE `match` = ? AND `uid` = ?'
       con.query(sql, [req.body.id, req.body.id_match], (err, resul) => {
@@ -366,7 +380,6 @@ app.post('/like', (req, res) => {
             let sql = 'INSERT INTO `like`(`uid`, `match`, `status`, `token_room`) VALUES (?, ?, 2, ?); UPDATE `like` SET status = 2 WHERE `uid` = ? AND `match` = ?; UPDATE `like` SET token_room = ? WHERE `uid` = ? AND `match` = ?'
             con.query(sql, [req.body.id, req.body.id_match, token_room, req.body.id_match, req.body.id, token_room, req.body.id_match, req.body.id], (err, result) => {
               if (err) throw err
-              console.log('letsgo')
             })
           }
         } else {
@@ -382,17 +395,19 @@ app.post('/like', (req, res) => {
 })
 
 app.post('/profil/match/dislike', (req, res) => {
-  console.log(req.body.id_match)
   let sql = 'SELECT * FROM `like` WHERE `uid` = ? AND `match` = ?'
   con.query(sql, [req.body.id, req.body.id_match], (err, resu) => {
     if (err) throw err
     if (resu[0]) {
+      let sql1 = 'UPDATE `like` SET token_room = NULL WHERE `uid` = ? AND `match` = ?'
+      con.query(sql1, [resu[0].uid, resu[0].match], (res, resul) => {
+        if (err) throw err
+      })
       let sql = 'UPDATE `like` SET status = -1 WHERE `uid` = ? AND `match` = ?'
       con.query(sql, [resu[0].uid, resu[0].match], (res, resul) => {
         if (err) throw err
       })
-      let sql1 = 'UPDATE `like` SET token_room = NULL WHERE `uid` = ? AND `match` = ?'
-      con.query(sql1, [resu[0].uid, resu[0].match], (res, resul) => {
+      con.query('UPDATE `like` SET status = -1 WHERE uid = ? AND `match` = ?', [resu[0].match, resu[0].uid], (err, results) => {
         if (err) throw err
       })
     } else {
@@ -406,26 +421,34 @@ app.post('/profil/match/dislike', (req, res) => {
 })
 
 app.post('/profil/image/upload', (req, res) => {
-  let name = uniqid() + '.png'
-  let data = req.body.dataURL
-  data = data.split(',')
-  let ext = data[0].indexOf('image')
-  if (ext !== -1) {
-    let img = data[1]
-    fs.writeFileSync('./images/users/' + name, img, 'base64', (err) => {
-      if (err) throw err
-    })
-    let sql = 'INSERT INTO `image`(`uid`, `post_url`) VALUES (?, ?)'
-    con.query(sql, [req.body.id, name], (err, result) => {
-      if (err) throw err
-      let sql = 'SELECT `post_url` from `image` WHERE uid = ?'
-      con.query(sql, [req.body.id], (err, resu) => {
-        if (err) throw err
-        res.send(resu)
-        res.end()
-      })
-    })
-  }
+  con.query('SELECT `post_url` FROM `image` WHERE uid = ?', [req.body.id], (err, resul) => {
+    if (err) throw err
+    console.log(resul.length)
+    if (resul.length === 5) {
+      res.end()
+    } else {
+      let name = uniqid() + '.png'
+      let data = req.body.dataURL
+      data = data.split(',')
+      let ext = data[0].indexOf('image')
+      if (ext !== -1) {
+        let img = data[1]
+        fs.writeFileSync('./images/users/' + name, img, 'base64', (err) => {
+          if (err) throw err
+        })
+        let sql = 'INSERT INTO `image`(`uid`, `post_url`) VALUES (?, ?)'
+        con.query(sql, [req.body.id, name], (err, result) => {
+          if (err) throw err
+          let sql = 'SELECT `post_url` from `image` WHERE uid = ?'
+          con.query(sql, [req.body.id], (err, resu) => {
+            if (err) throw err
+            res.send(resu)
+            res.end()
+          })
+        })
+      }
+    }
+  })
 })
 
 app.post('/profil/image/profilpic', (req, res) => {
@@ -454,11 +477,9 @@ app.post('/profil/image/profilpic', (req, res) => {
 app.post('/profil/image/display/profilpic', (req, res) => {
   con.query('SELECT `image` FROM users WHERE id = ?', [req.body.id], (err, resu) => {
     if (err) throw err
-    // console.log(resu[0].image)
     if (resu[0].image) {
       fs.readFile('./images/users/' + resu[0].image, 'base64', (err, contents) => {
         if (err) throw err
-        // console.log(contents)
         let content = 'data:image/png;base64,' + contents
         res.send(content)
         res.end()
@@ -495,6 +516,8 @@ app.post('/profil/imgage/delete', (req, res) => {
 })
 
 app.post('/search/fetch', (req, res) => {
+  let distance = req.body.data.distance
+  let idme = req.body.id
   let filter = req.body.filter
   let reqAge = req.body.data.value
   let reqScore = req.body.data.score
@@ -518,7 +541,7 @@ app.post('/search/fetch', (req, res) => {
     }
   } else {
     if (data.length === 0 && reqGender.length > 0 && reqSexual.length > 0) {
-      reqWithoutTag(reqScore, reqAge, reqGender, reqSexual, filter)
+      reqWithoutTag(reqScore, reqAge, reqGender, reqSexual, filter, distance, idme)
     } else if (reqGender.length === 0 && reqSexual.length > 0) {
       reqWithoutGender(reqScore, reqAge, reqSexual, filter)
     } else if (reqSexual.length === 0 & reqGender.length > 0) {
@@ -531,20 +554,16 @@ app.post('/search/fetch', (req, res) => {
     let id = []
     con.query(reqTag, (err, resu) => {
       if (err) throw err
-      // console.log(resu)
       if (resu[0]) {
         let ids = null
         for (let i in resu) {
           id[i] = resu[i].uid
-          console.log(id)
           if (ids == null) {
             ids = "id = '" + id[i] + "'"
-            console.log(ids)
           } else {
             ids += " OR id = '" + id[i] + "'"
           }
-          if (i.toString() === (data.length - 1).toString()) {
-            console.log(ids)
+          if (parseInt(i, 10) === resu.length - 1) {
             let idUsers = 'SELECT * FROM users WHERE (' + ids + ')'
             reqAll(idUsers, reqAge, reqScore, reqGender, reqSexual, filter)
           }
@@ -568,9 +587,10 @@ app.post('/search/fetch', (req, res) => {
       fuckingUltimateReq(finalReq, filter)
     }
   }
-  function reqWithoutTag (reqScore, reqAge, reqGender, reqSexual, filter) {
+  function reqWithoutTag (reqScore, reqAge, reqGender, reqSexual, filter, distance, idme) {
+    console.log(idme)
     let sql = 'SELECT * FROM `users` WHERE id != ' + req.body.id + ' AND (age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ') AND (score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + ") AND (sexual_orientation LIKE '" + reqSexual[0] + "' OR  sexual_orientation LIKE '" + reqSexual[1] + "' OR sexual_orientation LIKE '" + reqSexual[2] + "') AND (gender LIKE '" + reqGender[0] + "' OR gender LIKE '" + reqGender[1] + "' ) AND id NOT IN (SELECT `match` FROM `like` WHERE uid = " + req.body.id + ')'
-    fuckingUltimateReq(sql, filter)
+    fuckingUltimateReq(sql, filter, distance, idme)
   }
   function reqWithoutGender (reqScore, reqAge, reqSexual, filter) {
     let sql = 'SELECT * FROM `users` WHERE id != ' + req.body.id + ' AND (age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ') AND (score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + ") AND (sexual_orientation LIKE '" + reqSexual[0] + "' OR  sexual_orientation LIKE '" + reqSexual[1] + "' OR sexual_orientation LIKE '" + reqSexual[2] + "') AND id NOT IN (SELECT `match` FROM `like` WHERE uid = " + req.body.id + ')'
@@ -585,7 +605,7 @@ app.post('/search/fetch', (req, res) => {
     let sql = 'SELECT * FROM `users` WHERE id != ' + req.body.id + ' AND (age BETWEEN ' + reqAge.min + ' AND ' + reqAge.max + ') AND (score BETWEEN ' + reqScore.min + ' AND ' + reqScore.max + ') AND id NOT IN (SELECT `match` FROM `like` WHERE uid =' + req.body.id + ')'
     fuckingUltimateReq(sql, filter)
   }
-  function fuckingUltimateReq (req, filter) {
+  function fuckingUltimateReq (req, filter, distance, idme) {
     if (filter === 'AgeA') {
       let finalReq = req + ' ORDER BY age ASC'
       con.query(finalReq, (err, resu) => {
@@ -614,11 +634,31 @@ app.post('/search/fetch', (req, res) => {
         res.send(resu)
         res.end()
       })
-    } else {
-      con.query(req, (err, resu) => {
+    } else if (filter === 'DistanceA') {
+      console.log(idme)
+      con.query('SELECT lat, ln FROM users WHERE id = ?', [idme], (err, resu) => {
         if (err) throw err
-        res.send(resu)
-        res.end()
+      })
+    } else if (filter === 'DistanceB') {
+
+    } else {
+      con.query('SELECT lat, ln FROM users WHERE id = ?', [idme], (err, resu) => {
+        if (err) throw err
+        let tab = []
+        con.query(req, (err, resul) => {
+          if (err) throw err
+          for (let k in resul) {
+            resul[k].distance = getDistanceFromLatLonInKm(resul[k].lat, resul[k].ln, resu[0].lat, resu[0].ln)
+            if (resul[k].distance >= distance.min && resul[k].distance <= distance.max) {
+              tab.push(resul[k])
+              if (parseInt(k, 10) === resul.length - 1) {
+                console.log('yo')
+                res.send(tab)
+                res.send()
+              }
+            }
+          }
+        })
       })
     }
   }
@@ -660,3 +700,27 @@ app.post('/profil/tag/delete', (req, res) => {
     res.end()
   })
 })
+
+app.post('/geolocation', (req, res) => {
+  console.log('lol')
+  console.log(req.body)
+  con.query('UPDATE users SET lat = ?, ln = ? WHERE id = ?', [req.body.lat, req.body.ln, req.body.id], (err, resu) => {
+    if (err) throw err
+    console.log('done')
+  })
+  res.end()
+})
+
+function getDistanceFromLatLonInKm (lat1, lon1, lat2, lon2) {
+  var R = 6371 // Radius of the earth in km
+  var dLat = deg2rad(lat2 - lat1) // deg2rad below
+  var dLon = deg2rad(lon2 - lon1)
+  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  var d = R * c // Distance in km
+  return d
+}
+
+function deg2rad (deg) {
+  return deg * (Math.PI / 180)
+}

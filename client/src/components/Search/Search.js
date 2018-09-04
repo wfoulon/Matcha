@@ -5,6 +5,7 @@ import { WithContext as ReactTags } from 'react-tag-input'
 import { Button } from 'semantic-ui-react'
 import axios from 'axios'
 import FeedCard from '../Feed/FeedCard/FeedCard'
+import Select from '../Select/Select'
 import './Search.css'
 import 'react-input-range/lib/css/index.css'
 
@@ -28,6 +29,7 @@ class Search extends React.Component {
       SortBy: '',
       value: {min: 18, max: 35},
       score: {min: 35, max: 65},
+      distance: {min: 0, max: 30}
       // options: ['Age', 'Score', 'Gender']
     }
     this.handleDelete = this.handleDelete.bind(this)
@@ -132,8 +134,15 @@ class Search extends React.Component {
               onChange={value => this.setState({ score: value})}
               value={this.state.score} />
           </div>
+          <div className='form'>
+          <InputRange
+              draggableTrack
+              maxValue={100}
+              minValue={0}
+              onChange={value => this.setState({ distance: value})}
+              value={this.state.distance} />
+          </div>
           <div id='tag' className=''>
-            {/* <h4>Veuillez choisir 5 tags</h4> */}
                 <ReactTags
                   tags={tags}
                   handleDelete={this.handleDelete}
@@ -159,6 +168,7 @@ class Search extends React.Component {
               <option value='DistanceD'>Distance (Decreasing)</option>
             </select>
           </div>
+          {/* <Select info={this.state}/> */}
         </div>
       <div className='Feed'>
         {all ? all : ''}

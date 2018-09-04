@@ -17,7 +17,6 @@ class Feed extends Component {
     axios.post('/feed/display', { id })
     .then((result) => {
       const all = result.data
-      console.log(all)
       let info = Object.keys(all).map((val, key) =>
         <FeedCard key={key} val={all[val]} />
       )
@@ -30,9 +29,22 @@ class Feed extends Component {
   render () {
     if (this.state.all !== null) {
       return (
+        <div>
+        <div>
+          <select name='SortBy' onChange={this.onChange}>
+            <option defaultValue=''>Sort By</option>
+            <option value='AgeA'>Age (Ascending)</option>
+            <option value='AgeD'>Age (Decreasing)</option>
+            <option value='ScoreA'>Score (Ascending)</option>
+            <option value='ScoreD'>Score (Decreasing)</option>
+            <option value='DistanceA'>Distance (Ascending)</option>
+            <option value='DistanceD'>Distance (Decreasing)</option>
+          </select>
+        </div>
         <div className='Feed'>
         {this.state.all}
         </div>
+      </div>
       )
     } else {
         return (
