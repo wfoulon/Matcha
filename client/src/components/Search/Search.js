@@ -34,6 +34,7 @@ class Search extends React.Component {
     }
     this.handleDelete = this.handleDelete.bind(this)
     this.handleAddition = this.handleAddition.bind(this)
+    // this.Update = this.Update.bind(this)
   }
   handleAddition (tag) {
     this.setState(state => ({ tags: [...state.tags, tag] }))
@@ -95,8 +96,8 @@ class Search extends React.Component {
     )
   }
     return (
-      <div>
-        <div className='' style={{marginTop: '20px', width: '350px'}}>
+      <div className='SearchContent'>
+        <div className='ParametersContent'>
           <h1 style={{textAlign: 'center'}}>Search Parameter</h1>
           <div>
             <CheckboxGroup
@@ -117,7 +118,7 @@ class Search extends React.Component {
               <label><Checkbox value='Bisexual'/> Bisexual</label>
             </CheckboxGroup>
           </div>
-          <div className='form'>
+          <div className=''>
           <InputRange
               draggableTrack
               maxValue={99}
@@ -126,7 +127,7 @@ class Search extends React.Component {
               onChangeComplete={value => console.log(value)}
               value={this.state.value} />
           </div>
-          <div className='form'>
+          <div className=''>
           <InputRange
               draggableTrack
               maxValue={100}
@@ -134,10 +135,10 @@ class Search extends React.Component {
               onChange={value => this.setState({ score: value})}
               value={this.state.score} />
           </div>
-          <div className='form'>
+          <div className=''>
           <InputRange
               draggableTrack
-              maxValue={100}
+              maxValue={500}
               minValue={0}
               onChange={value => this.setState({ distance: value})}
               value={this.state.distance} />
@@ -157,7 +158,7 @@ class Search extends React.Component {
           <div>
             <Button positive floated='left' value='search' onClick={this.onSearch}>Search</Button>
           </div>
-          <div>
+          <div className='select-custom'>
             <select name='SortBy' onChange={this.onChange}>
               <option defaultValue=''>Sort By</option>
               <option value='AgeA'>Age (Ascending)</option>
@@ -168,9 +169,8 @@ class Search extends React.Component {
               <option value='DistanceD'>Distance (Decreasing)</option>
             </select>
           </div>
-          {/* <Select info={this.state}/> */}
         </div>
-      <div className='Feed'>
+      <div className='ResultSearch'>
         {all ? all : ''}
       </div>
       </div>

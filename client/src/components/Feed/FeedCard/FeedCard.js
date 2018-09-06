@@ -16,6 +16,7 @@ class FeedCard extends Component {
     super(props)
     this.state = {
       img: null
+
     }
   }
   
@@ -26,6 +27,7 @@ class FeedCard extends Component {
     const id_match = this.props.val.id
     axios.post('/profil/match/dislike', {id, id_match})
     .then((result) => {
+      this.props.update()
     })
     switch (type) {
       case 'info':
@@ -51,6 +53,7 @@ class FeedCard extends Component {
       const id_match = this.props.val.id
       axios.post('/like', {id, id_match})
       .then((result) => {
+        this.props.update()
       })
       switch (type) {
         case 'info':
@@ -76,7 +79,7 @@ class FeedCard extends Component {
         <div className='ContentProfil'>
           <div className='ProfilCard'>
             <div className='ProfilImg'>
-              {val['image'] ? <img style={{width: '200px'}} src={require('../../../../../images/users/' + val['image'])} alt='' /> : <img src={require('../../../assets/defprofil.png')} alt='' />}
+              {val['image'] ? <img src={require('../../../../../images/users/' + val['image'])} alt='' className='imgProfil' /> : <img src={require('../../../assets/defprofil.png')} alt='' className='imgProfil' />}
             </div>
             <div className='card-body'>
               <div className='flex-center'>
