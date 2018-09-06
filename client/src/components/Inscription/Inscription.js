@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Row, Col, Input, Button, Card, CardBody } from 'mdbreact'
+import {NotificationContainer, NotificationManager} from 'react-notifications'
 import '../../styles/form.css'
 import 'font-awesome/css/font-awesome.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -109,6 +110,7 @@ class Inscription extends React.Component {
       cpwd:'',
       gender: '',
       sexual_orientation: '',
+      message: false,
       validation: this.validator.valid(),
     }
     this.onChange = this.onChange.bind(this)
@@ -132,8 +134,15 @@ class Inscription extends React.Component {
       const {uname, lname, fname, mail, pwd, cpwd, gender, sexual_orientation} = this.state
       axios.post('/register', {uname, lname, fname, mail, pwd, cpwd, gender, sexual_orientation})
       .then((result) => {
+        console.log(result)
+        this.setState({
+          message: true
+        })
+        if (result.length === 0) {
+          console.log('error')
+        }
       })
-    }    
+    }
   }
   
   render() {
@@ -162,23 +171,23 @@ class Inscription extends React.Component {
                     <Input name='mail' label="Your email" icon="envelope" group type="email" validate error="wrong" success="right" onChange={this.onChange}/>
                     <span>{validation.mail.message}</span>
                   </div>
-                  <div>
-                    <select className="mdb-select" name='gender' onChange={this.onChange}>
+                  <div className="select-custom" style={{margin: '10px'}}>
+                    <select className="custom-select" name='gender' onChange={this.onChange}>
                       <option defaultValue="">Gender</option>
                       <option value="Man">Man</option>
                       <option value="Woman">Woman</option>
                     </select>
-                    <span>{validation.gender.message}</span>
                   </div>
-                  <div>
-                    <select className="mdb-select" name='sexual_orientation' onChange={this.onChange}>
+                  <span>{validation.gender.message}</span>
+                  <div className="select-custom" style={{margin: '10px'}}>
+                    <select name='sexual_orientation' onChange={this.onChange}>
                       <option defaultValue="">Sexual Orientation</option>
                       <option value="Heterosexual">Heterosexual</option>
                       <option value="Homosexual">Homosexual</option>
                       <option value="Bisexual">Bisexual</option>
                     </select>  
-                    <span>{validation.sexual_orientation.message}</span>
                   </div>
+                  <span>{validation.sexual_orientation.message}</span>
                   <div>                                            
                     <Input name='pwd' label="Password" icon="lock" group type="password" validate error="wrong" success="right" onChange={this.onChange}/>
                     <span>{validation.pwd.message}</span>
@@ -190,9 +199,9 @@ class Inscription extends React.Component {
                 </div>
                 <div className="text-center py-4 mt-3">
                   <Button color="cyan" onClick={this.onSubmit}>Register</Button>
+                  {/* {this.state.message ? <div style={{textAlign: 'center'}}>Vous avez reçu un email de confirmation !</div> : '' } */}
                 </div>
                 <div className="text-center py-4 mt-3">
-                  {/* <p>Already register ?</p> */}
                   <Button href="/connexion" color="cyan">Already register ?</Button>
                 </div>
               </CardBody>

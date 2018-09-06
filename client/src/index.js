@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import 'react-notifications/lib/notifications.css'
+import './components/style.css'
 
 // import { BrowserRouter, Route, Switch } from 'react-router-dom'
 // import { render } from 'react-dom'

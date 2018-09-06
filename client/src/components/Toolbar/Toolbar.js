@@ -3,7 +3,8 @@ import React, { Component } from 'react'
 import Logo from '../../assets/logo.svg'
 import Notif from '../../assets/notification.svg'
 import Search from '../../assets/search.svg'
-import Chat from '../../assets/chat.svg'
+import Chat from '../../assets/love.svg'
+import Trending from '../../assets/fire.svg'
 
 import './Toolbar.css'
 
@@ -60,10 +61,9 @@ class Toolbar extends Component {
     const open = Boolean(anchorEl)
     return (
       <div className='Toolbar'>
-        <img className='Toolbar-logo' src={Logo} alt='' />
-        <a href='/feed' className='Toolbar-items'>Matcha</a>
         {this.state.log ?
         <div>
+          <a href='/feed'><img className='Toolbar-items' src={Trending} alt=''/></a>
           <a href='/chat'><img className='Toolbar-items' src={Chat} alt=''/></a>
           <img className='Toolbar-items' src={Notif} alt='' />
           <a href='/search'><img className='Toolbar-items' src={Search} alt='' /></a>

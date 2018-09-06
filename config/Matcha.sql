@@ -15,7 +15,10 @@ CREATE TABLE IF NOT EXISTS `users`(
     token VARCHAR(255) NOT NULL,
     confirmation INT(1) NOT NULL DEFAULT 0,
     `image` VARCHAR(300) NULL,
-    score INT NULL
+    score INT NULL,
+    bio VARCHAR(255) NULL,
+    lat VARCHAR(255) NULL,
+    ln VARCHAR(255) NULL
 );
 
 CREATE TABLE IF NOT EXISTS `interest` (

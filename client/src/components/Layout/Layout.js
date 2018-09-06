@@ -20,7 +20,7 @@ const socket = io('localhost:3000')
 const layout = (props) => {
   return (
     <Aux>
-      <Toolbar socket={socket} />
+      <Toolbar />
       <main>
         <Route path='/inscription' component={Inscription}/* component={props => <Inscription socket={socket} /> } */ />
         <Route path='/connexion' component={Connexion} />
