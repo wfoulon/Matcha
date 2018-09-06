@@ -2,3 +2,8 @@
     justify-content: center !important;
     margin-top: 20px;
 }
+
+.messages {
+    max-height: 100px !important;
+    overflow: auto;
+}

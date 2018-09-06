@@ -1,3 +1,5 @@
+/* import { error } from 'util'; */
+
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 5000
@@ -28,51 +30,57 @@ let io = require('socket.io')(server, {pingTimeout: 5000, pingInterval: 10000, t
 
 let con = mysql.createConnection({
   host: 'localhost',
-  user: 'matcha',
+  user: 'localhost',
   password: 'root42',
   multipleStatements: true
 })
 
 io.on('connection', (socket) => {
-  /*   console.log('ici')
-  socket.on('visit', data => {
-    console.log(data)
-    let visitor = data.visitor
-    let visited = data.visited
-    console.log(visitor)
-    console.log(visited)
-    io.emit('notifVisit/' + visitor, visited)
-  })*/
-    console.log(socket.id)
+    // console.log(socket.id)
+    socket.on('joinRoom', (data) => {
+      socket.join(data)
+    })
     socket.on('SEND_MESSAGE', data => {
-      console.log(socket.rooms)
-      console.log(data)
       let uname = ent.encode(data.author)
       let message = ent.encode(data.message)
-      let sql = 'SELECT * FROM users WHERE uname = ?'
-      con.query(sql, [uname], (err, res) => {
+      let uid = data.id
+      let room = ent.encode(data.room)
+      console.log(data.room)
+      let date = new Date()
+      con.query("SELECT `match` FROM `like` WHERE uid = ? AND token_room = ?", [uid, room], (err, ures) => {
         if (err) throw err
-        if (res[0].uname === uname){
-          let created = new Date()
-          let sql1 = 'INSERT INTO message (uid, text, creation_date) VALUES (?, ?, ?)'
-          con.query(sql1, [res[0].id, message, created], (err, res2) => {
+        else {
+          let match = ures[0].match
+          con.query("INSERT INTO `message` (uid, `match`, text, creation_date, chat_id) VALUES (?,?,?,?,?)", [uid, match, message, date, room], (err, res) => {
             if (err) throw err
             else {
-              let uid = data.id
-              let sql2 = 'SELECT * FROM `like` WHERE `status` = 2 AND `uid` = ?'
-              con.query(sql2, [uid], (err, res) => {
-                if (err) throw err
-                else{
-                  socket.join(res[0].token_room)
-                  io.to(res[0].token_room).emit('RECEIVE_MESSAGE', data)
-                  console.log(data)
-                }
-              })
+              io.to(room).emit('RECEIVE_MESSAGE', data)
             }
           })
         }
       })
+      
   })
+    socket.on('getAll/Conv', data => {
+
+      let id = data.id
+      con.query('SELECT * FROM `like` WHERE uid = ? AND status = 2', [id], (err, result) => {
+        if (err) throw err
+        else {
+          for (let i = 0; i < result.length; i++) {
+            con.query('SELECT uname FROM users WHERE id = ?', [result[i].match], (err, ures) => {
+              if (err) throw err
+              else {
+                result[i]['uname'] = ures[0].uname
+                if (i === result.length - 1)
+                  // console.log(result)
+                  io.emit('receive/conv/' + id, result)
+              }
+            })          
+          }
+        }
+      })
+    })
 })
 
 let db = fs.readFileSync('./config/Matcha.sql', 'UTF-8')
@@ -135,6 +143,28 @@ app.use(bodyParser.json())
     }
   })
 
+app.post('/getAllMess', (req, res) => {
+  con.query('SELECT * FROM message WHERE uid = ? OR `match` = ?', [req.body.id, req.body.id], (err, result) => {
+    if (err) throw err
+    let all = {}
+    for (let i = 0; i < result.length; i++) {
+      con.query('SELECT uname FROM users WHERE id = ?', [result[i].uid], (err, nameRes) => {
+        if (err) throw err
+        else {
+          if (!all[result[i].chat_id])
+            all[result[i].chat_id] = {}
+            all[result[i].chat_id][result[i].id] = {author: nameRes[0].uname, message: result[i].text, id: result[i].uid, room: result[i].chat_id }
+            if (i === result.length - 1) {
+              res.send(all)
+              res.end()
+            }
+        }
+      })
+    }
+    // res.send(result)
+    // res.end()
+  })
+})
 app.post('/register', (req, res) => {
   let uname = ent.encode(req.body.uname)
   let lname = ent.encode(req.body.lname)
