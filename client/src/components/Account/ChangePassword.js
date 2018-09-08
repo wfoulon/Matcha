@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Container, Row, Col, Input, Button, Card, CardBody } from 'mdbreact'
 import FormValidator from '../FormValidator/FormValidator'
+import { Message } from 'semantic-ui-react'
 import axios from 'axios'
 
 class ChangePassword extends Component {
@@ -50,6 +51,7 @@ class ChangePassword extends Component {
       pwd : '',
       newpwd : '',
       cnewpwd : '',
+      message: '',
       validation: this.validator.valid(),
     }
     this.onSubmitPass = this.onSubmitPass.bind(this)
@@ -69,11 +71,20 @@ class ChangePassword extends Component {
     this.setState({ validation })
     this.submitted = true
     if (validation.isValid) {
-      console.log('here')
       const id = localStorage.id
       const {pwd, newpwd, cnewpwd} = this.state
       axios.post('/changepassword', {pwd, newpwd, cnewpwd, id})
-      .then((result) => {                
+      .then((result) => {
+        if (result.data === 'GOOD') {
+          this.setState ({
+            message: 'Votre Password a bien été modifié'
+          })
+        }
+        if (result.data === 'ERROR') {
+          this.setState ({
+            message: 'Wrong Password'
+          })
+        }
       })
     }    
   }
@@ -103,6 +114,9 @@ class ChangePassword extends Component {
                   <div className='text-center py-4 mt-3'>
                     <Button color='cyan' onClick={this.onSubmitPass}>Submit</Button>
                   </div>
+                  <div>
+                    {this.state.message === '' ? '' : <Message floating>{this.state.message}</Message>}
+                  </div> 
                 </div>
               </CardBody>
             </Card>

@@ -109,7 +109,7 @@ class Inscription extends React.Component {
       cpwd:'',
       gender: '',
       sexual_orientation: '',
-      message: false,
+      message: '',
       validation: this.validator.valid(),
     }
     this.onChange = this.onChange.bind(this)
@@ -133,14 +133,23 @@ class Inscription extends React.Component {
       const {uname, lname, fname, mail, pwd, cpwd, gender, sexual_orientation} = this.state
       axios.post('/register', {uname, lname, fname, mail, pwd, cpwd, gender, sexual_orientation})
       .then((result) => {
-        console.log(result)
-        this.setState({
-          message: true
-        })
-        if (result.length === 0) {
-          console.log('error')
+        if (result.data === 'ERRORL') {
+          this.setState({
+            message: 'Votre login ou votre adresse email est déjà utilisé !'
+          })
+        }
+        if (result.data === 'GOOD') {
+          this.setState ({
+            message: 'Vous allez recevoir un email de confirmation !'
+          })
         }
       })
+    }
+  }
+
+  componentDidMount = () => {
+    if (localStorage.id) {
+      this.props.history.push('/profil')
     }
   }
   
@@ -199,6 +208,9 @@ class Inscription extends React.Component {
                 <div className="text-center py-4 mt-3">
                   <Button color="cyan" onClick={this.onSubmit}>Register</Button>
                   {/* {this.state.message ? <div style={{textAlign: 'center'}}>Vous avez reçu un email de confirmation !</div> : '' } */}
+                </div>
+                <div>
+                  <span>{this.state.message}</span>
                 </div>
                 <div className="text-center py-4 mt-3">
                   <Button href="/connexion" color="cyan">Already register ?</Button>

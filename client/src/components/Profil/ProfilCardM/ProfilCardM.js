@@ -46,7 +46,7 @@ class ProfilCardM extends Component {
           <div className='card-body'>
             <div className='flex-center'>
               <div className=''>
-                {!val ? '' : <h4 className=''>{val['fname']} {val['lname']}</h4>}
+                {!val ? '' : <a href={'/profil/' + val['id']}><h4 className=''>{val['fname']} {val['lname']}</h4></a>}
               </div>
               {!val ? '' : <div className='ProfilSexual'><img src={Trophy} alt='' className='imgGender'/> <p>{val['score']}</p></div>}
             </div>

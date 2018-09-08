@@ -175,18 +175,16 @@ app.post('/register', (req, res) => {
   let token = sha1(uniqid())
   let gender = req.body.gender
   let sexual = req.body.sexual_orientation
-  let sql = 'SELECT * FROM users WHERE uname = ? OR email = ?'
-  con.query(sql, [uname, mail], (err, resu) => {
+  con.query('SELECT * FROM users WHERE uname = ? OR email = ?', [uname, mail], (err, resu) => {
     if (err) throw err
     if (resu.length === 0) {
-      let sql = 'INSERT INTO users(uname, lname, fname, email, password, token, gender, sexual_orientation) VALUES(?, ?, ?, ?, ?, ?, ?, ?)'
-      con.query(sql, [uname, lname, fname, mail, pwd, token, gender, sexual], (err, res) => {
+      con.query('INSERT INTO users(uname, lname, fname, email, password, token, gender, sexual_orientation) VALUES(?, ?, ?, ?, ?, ?, ?, ?)', [uname, lname, fname, mail, pwd, token, gender, sexual], (err, resul) => {
         if (err) throw err
       })
-      let sql2 = 'SELECT * FROM users WHERE uname = ? and token = ?'
-      con.query(sql2, [uname, token], (err, res) => {
+      con.query('SELECT * FROM users WHERE uname = ? and token = ?', [uname, token], (err, result) => {
         if (err) throw err
-        if (uname === res[0].uname && token === res[0].token) {
+        if (uname === result[0].uname && token === result[0].token) {
+          console.log('yo')
           var transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -196,31 +194,30 @@ app.post('/register', (req, res) => {
           })
           let mail = {
             from: 'Matcha@gmail.com',
-            to: res[0].email,
+            to: result[0].email,
             subject: 'Account validation',
-            html: '<p>Welcome to Matcha ' + res[0].uname + '</p><br><p>To validate your account please click on the link below:</p><br><a href="http://localhost:3000/validation/' + res[0].token + '/' + res[0].uname + '">Validate your account</a>'
+            html: '<p>Welcome to Matcha ' + result[0].uname + '</p><br><p>To validate your account please click on the link below:</p><br><a href="http://localhost:3000/validation/' + result[0].token + '/' + result[0].uname + '">Validate your account</a>'
           }
           transporter.sendMail(mail, function (error, info) {
             if (error) throw error
-            if (error) {
-            } else {
-              console.log('Email sent')
-            }
+            // res.send('GOOD')
+            // res.end()
           })
           transporter.close()
+          res.send('GOOD')
+          res.end()
         } else {
-          let sql2 = 'DELETE * FROM users WHERE uname = ?'
-          con.query(sql2, [uname], (err, res) => {
+          con.query('DELETE * FROM users WHERE uname = ?', [uname], (err, results) => {
             if (err) throw err
+            res.end()
           })
         }
       })
     } else {
-      res.send(null)
+      res.send('ERRORL')
       res.end()
     }
   })
-  // res.end()
 })
 
 app.post('/connexion', (req, res) => {
@@ -248,20 +245,20 @@ app.post('/profil/getdata', (req, res) => {
 app.post('/changepassword', (req, res) => {
   console.log('yo')
   let id = req.body.id
-  console.log(req.body.pwd)
-  console.log(req.body.newpwd)
   let pwd = crypto.createHash('whirlpool').update(req.body.pwd).digest('hex')
   let newpwd = crypto.createHash('whirlpool').update(req.body.newpwd).digest('hex')
   let cnewpwd = crypto.createHash('whirlpool').update(req.body.cnewpwd).digest('hex')
-  let sql = 'SELECT * FROM users WHERE id = ?'
-  con.query(sql, [id], (err, res) => {
+  con.query('SELECT * FROM users WHERE id = ?', [id], (err, resu) => {
     if (err) throw err
-    if (pwd === res[0].password && newpwd === cnewpwd) {
-      let sql1 = 'UPDATE users SET password = ? WHERE id = ?'
-      con.query(sql1, [newpwd, id], (err, res) => {
+    if (pwd === resu[0].password && newpwd === cnewpwd) {
+      con.query('UPDATE users SET password = ? WHERE id = ?', [newpwd, id], (err, resul) => {
         if (err) throw err
-        // res.end()
+        res.send('GOOD')
+        res.end()
       })
+    } else {
+      res.send('ERROR')
+      res.end()
     }
   })
 })
@@ -274,8 +271,10 @@ app.post('/settings', (req, res) => {
   let gender = ent.encode(req.body.gender)
   let sexe = ent.encode(req.body.sexual_orientation)
   let sql = 'UPDATE users SET lname = ?, fname = ?, age = ?, gender = ?, sexual_orientation = ?, bio = ? WHERE id = ?'
-  con.query(sql, [lname, fname, age, gender, sexe, req.body.bio, id], (err, res) => {
+  con.query(sql, [lname, fname, age, gender, sexe, req.body.bio, id], (err, resu) => {
     if (err) throw err
+    res.send('GOOD')
+    res.end()
   })
 })
 
@@ -284,25 +283,33 @@ app.post('/changemail', (req, res) => {
   let pwd = crypto.createHash('whirlpool').update(req.body.pwd).digest('hex')
   let uname = ent.encode(req.body.uname)
   let sql = 'SELECT * FROM users WHERE uname = ? AND password = ?'
-  con.query(sql, [uname, pwd], (err, res) => {
+  con.query(sql, [uname, pwd], (err, resu) => {
     if (err) throw err
-    let id = res[0].id
+    let id = resu[0].id
     let sql = 'UPDATE users SET email = ? WHERE id = ?'
-    con.query(sql, [mail, id], (err, res) => {
+    con.query(sql, [mail, id], (err, resul) => {
       if (err) throw err
+      res.end()
     })
   })
-  res.end()
 })
 
 app.post('/deleteaccount', (req, res) => {
   let uname = ent.encode(req.body.uname)
   let pwd = crypto.createHash('whirlpool').update(req.body.pwd).digest('hex')
-  let sql = 'DELETE FROM users WHERE uname = ? AND password = ?'
-  con.query(sql, [uname, pwd], (err, resu) => {
+  con.query('SELECT * FROM users WHERE uname = ? AND password = ?', [uname, pwd], (err, resul) => {
     if (err) throw err
-    res.send(resu)
-    res.end()
+    if (resul.length > 0) {
+      let sql = 'DELETE FROM users WHERE uname = ? AND password = ?'
+      con.query(sql, [uname, pwd], (err, resu) => {
+        if (err) throw err
+        res.send('GOOD')
+        res.end()
+      })
+    } else {
+      res.send('ERROR')
+      res.end()
+    }
   })
 })
 

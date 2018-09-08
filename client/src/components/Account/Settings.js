@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Container, Row, Col, Input, Button, Card, CardBody } from 'mdbreact'
-import { Form, TextArea } from 'semantic-ui-react'
+import { Form, TextArea, Message } from 'semantic-ui-react'
 import axios from 'axios'
 import FormValidator from '../FormValidator/FormValidator'
 
@@ -49,6 +49,7 @@ class Settings extends Component {
       gender: '',
       sexual_orientation: '',
       bio: '',
+      message: '',
       validation: this.validator.valid(),
     }
     this.onSubmit = this.onSubmit.bind(this)
@@ -71,7 +72,17 @@ class Settings extends Component {
         const id = localStorage.id
         const {lname, fname, age, gender, sexual_orientation, bio} = this.state
         axios.post('/settings', {id, lname, fname, age, gender, sexual_orientation, bio})
-            .then((result) => {
+          .then((result) => {
+            if (result.data === 'GOOD') {
+              this.setState ({
+                message: 'Vos infos ont bien été modifié'
+              })
+            }
+            if (result.data === 'ERROR') {
+              this.setState ({
+                message: 'Wrong Password'
+              })
+            }      
         })
     }   
 }
@@ -123,6 +134,9 @@ class Settings extends Component {
                 <div className="text-center py-4 mt-3">
                   <Button color="cyan" onClick={this.onSubmit}>Submit</Button>
                 </div>
+                <div>
+                    {this.state.message === '' ? '' : <Message floating>{this.state.message}</Message>}
+                </div> 
               </CardBody>
             </Card>
           </Col>

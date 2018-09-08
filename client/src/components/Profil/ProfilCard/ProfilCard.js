@@ -54,7 +54,7 @@ class profilCard extends React.Component {
       <div className='ContentProfil'>
         <div className='ProfilCard'>
           <div className='ProfilImg'>
-            <img src={img} alt='' className='imgProfil'/>
+            {img ? <img src={img} alt='' className='imgProfil'/> : <img src={require('../../../assets/defprofil.png')} alt='' className='imgProfil' />}
             <img src='' alt='' id='new' style={{display: 'none'}}/>
           </div>
           <div>
@@ -74,7 +74,7 @@ class profilCard extends React.Component {
               </div>
               {!val ? '' : <div className='ProfilSexual'><img src={Orien} alt='' className='imgGender'/> <p>{val[0].sexual_orientation}</p></div>}
             </div>
-            {!val ? '' : <p>{val[0].age} years old</p> }
+            {!val ? '' : val[0].age === null ? <p>IMPORTANT ! Please enter your age.</p> : <p>{val[0].age} years old</p> }
             {!val ? '' : <p>{val[0].bio}</p> }
             <div> <GetCoords /> </div>
           </div>
