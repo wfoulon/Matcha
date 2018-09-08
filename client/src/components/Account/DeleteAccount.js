@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Container, Row, Col, Input, Button, Card, CardBody } from 'mdbreact'
 import FormValidator from '../FormValidator/FormValidator'
+import { Message } from 'semantic-ui-react'
 import axios from 'axios'
 
 class DeleteAccount extends Component {
@@ -50,6 +51,7 @@ class DeleteAccount extends Component {
       uname: '',
       pwd : '',
       cpwd: '',
+      message: '',
       validation: this.validator.valid()
     }
     this.onSubmitDelete = this.onSubmitDelete.bind(this)
@@ -74,9 +76,20 @@ class DeleteAccount extends Component {
       const {uname, pwd, cpwd} = this.state
       axios.post('/deleteaccount', {uname, pwd, cpwd, id, login})
       .then((result) => {
-        if (result)
-        localStorage.clear()
-        window.location('/connexion')
+        console.log(result)
+        if (result.data === 'GOOD') {
+          localStorage.clear()
+          this.setState({
+            message: 'Votre compte a bien été supprimé. Vous allez être déconnecté'
+          })
+          setTimeout(() => {
+            window.location = '/connexion'
+          }, 4000)
+        } else {
+          this.setState({
+            message: 'Wrong login or password'
+          })
+        }
       })
     }
   }
@@ -106,6 +119,9 @@ class DeleteAccount extends Component {
                   <div className='text-center py-4 mt-3'>
                     <Button color='cyan' onClick={this.onSubmitDelete}>Delete</Button>
                   </div>
+                  <div>
+                    {this.state.message === '' ? '' : <Message floating>{this.state.message}</Message>}
+                </div> 
                 </div>
               </CardBody>
             </Card>

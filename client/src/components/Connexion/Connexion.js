@@ -83,6 +83,13 @@ class Connexion extends Component {
       })
     }
   }
+
+  componentDidMount = () => {
+    if (localStorage.id) {
+      this.props.history.push('/profil')
+    }
+  }
+  
   render () {
     let validation = this.submitted ? this.validator.validate(this.state) : this.state.validation
     return (
