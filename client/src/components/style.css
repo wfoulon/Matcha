@@ -1,5 +1,7 @@
-body {
-    background-color: #283242 
+body, #root {
+    width: 100%;
+    height: 100%;
+    background-color: #283242;
 }
 
 a {
@@ -48,4 +50,8 @@ a:hover {
 
 input {
     text-decoration: none;
+}
+
+main {
+    background-color: #283242;
 }

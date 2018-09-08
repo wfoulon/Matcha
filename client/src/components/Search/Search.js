@@ -5,7 +5,7 @@ import { WithContext as ReactTags } from 'react-tag-input'
 import { Button } from 'semantic-ui-react'
 import axios from 'axios'
 import FeedCard from '../Feed/FeedCard/FeedCard'
-import Select from '../Select/Select'
+
 import './Search.css'
 import 'react-input-range/lib/css/index.css'
 
@@ -30,11 +30,9 @@ class Search extends React.Component {
       value: {min: 18, max: 35},
       score: {min: 35, max: 65},
       distance: {min: 0, max: 30}
-      // options: ['Age', 'Score', 'Gender']
     }
     this.handleDelete = this.handleDelete.bind(this)
     this.handleAddition = this.handleAddition.bind(this)
-    // this.Update = this.Update.bind(this)
   }
   handleAddition (tag) {
     this.setState(state => ({ tags: [...state.tags, tag] }))
@@ -87,6 +85,12 @@ class Search extends React.Component {
       })
   }
   
+  componentDidMount = () => {
+    if (!localStorage.id) {
+      this.props.history.push('/')
+    }
+  }
+
   render() {
     let {info, tags} = this.state
     let all = null

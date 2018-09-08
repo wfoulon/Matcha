@@ -17,19 +17,22 @@ class Feed extends Component {
     this.onChange = this.onChange.bind(this)
     this.Update = this.Update.bind(this)
   }
-  
   componentDidMount = (e) => {
-    const id = localStorage.id
-    axios.post('/feed/display', { id })
-    .then((result) => {
-      const all = result.data
-      let info = Object.keys(all).map((val, key) =>
-        <FeedCard update={this.Update} key={key} val={all[val]} />
-      )
-      this.setState({
-        all: info
-      })
-  })
+    if (!localStorage.id) {
+      this.props.history.push('/')
+    } else {
+      const id = localStorage.id
+      axios.post('/feed/display', { id })
+      .then((result) => {
+        const all = result.data
+        let info = Object.keys(all).map((val, key) =>
+          <FeedCard update={this.Update} key={key} val={all[val]} />
+        )
+        this.setState({
+          all: info
+        })
+    })
+    }
   }
 
   onChange = (e) => {

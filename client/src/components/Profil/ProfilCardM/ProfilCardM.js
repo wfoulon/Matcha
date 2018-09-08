@@ -2,6 +2,10 @@ import React, { Component } from 'react'
 import axios from 'axios'
 
 import dislike from '../../../assets/cancel.svg'
+import Female from '../../../assets/femenine.svg'
+import Male from '../../../assets/masculine.svg'
+import Orien from '../../../assets/genders.svg'
+import Trophy from '../../../assets/winner.svg'
 
 class ProfilCardM extends Component {
   constructor (props) {
@@ -34,17 +38,29 @@ class ProfilCardM extends Component {
   render () {
     const val = this.state.infPro
     return (
-      <div className='Content'>
+      <div className='ContentProfil'>
         <div className='ProfilCard'>
-          <img src={this.state.img} alt='' />
+          <div className='ProfilImg'>
+            {val['image'] ? <img src={require('../../../../../images/users/' + val['image'])} alt='' className='imgProfil' /> : <img src={require('../../../assets/defprofil.png')} alt='' className='imgProfil' />}
+          </div>
           <div className='card-body'>
-            <a href={'/profil/' + val['id']}><h4 className='card-title'>{val['fname']} {val['lname']}</h4></a>
-            <p className='card-text text-center'>{val['gender']} {val['sexual_orientation']}</p>
-            <p>{val['age']} years old</p>
-            <p className=''>Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <div className='flex-center'>
+              <div className=''>
+                {!val ? '' : <h4 className=''>{val['fname']} {val['lname']}</h4>}
+              </div>
+              {!val ? '' : <div className='ProfilSexual'><img src={Trophy} alt='' className='imgGender'/> <p>{val['score']}</p></div>}
+            </div>
+            <div className='flex-center'>
+              <div className=''>
+                {!val ? '' : val['gender'] === 'Woman' ? <img src={Female} alt='' className='imgGender'/> : <img src={Male} alt='' className='imgGender'/> }
+              </div>
+              {!val ? '' : <div className='ProfilSexual'><img src={Orien} alt='' className='imgGender'/> <p>{val['sexual_orientation']}</p></div>}
+            </div>
+            {!val ? '' : <p>{val['age']} years old</p> }
+            {!val ? '' : <p>{val['bio']}</p> }
           </div>
           <div className='Card-vote'>
-            <img src={dislike} style={{width: '50px'}} alt='' onClick={this.OnDelete} />
+            <img src={dislike} style={{width: '50px'}} alt='' onClick={this.OnDelete}/>
           </div>
         </div>
       </div>

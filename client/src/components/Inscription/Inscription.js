@@ -1,12 +1,11 @@
 import React from 'react';
+import axios from 'axios'
+import FormValidator from '../FormValidator/FormValidator'
 import { Container, Row, Col, Input, Button, Card, CardBody } from 'mdbreact'
-import {NotificationContainer, NotificationManager} from 'react-notifications'
 import '../../styles/form.css'
 import 'font-awesome/css/font-awesome.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'mdbreact/dist/css/mdb.css'
-import axios from 'axios'
-import FormValidator from '../FormValidator/FormValidator'
 
 class Inscription extends React.Component {
   constructor (props) {

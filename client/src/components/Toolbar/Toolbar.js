@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
+import IconButton from '@material-ui/core/IconButton'
+import AccountCircle from '@material-ui/icons/AccountCircle'
+import MenuItem from '@material-ui/core/MenuItem'
+import Menu from '@material-ui/core/Menu'
 
-import Logo from '../../assets/logo.svg'
 import Notif from '../../assets/notification.svg'
 import Search from '../../assets/search.svg'
 import Chat from '../../assets/love.svg'
@@ -8,10 +11,6 @@ import Trending from '../../assets/fire.svg'
 
 import './Toolbar.css'
 
-import IconButton from '@material-ui/core/IconButton'
-import AccountCircle from '@material-ui/icons/AccountCircle'
-import MenuItem from '@material-ui/core/MenuItem'
-import Menu from '@material-ui/core/Menu'
 
 class Toolbar extends Component {
   constructor(props) {
@@ -61,7 +60,7 @@ class Toolbar extends Component {
     const open = Boolean(anchorEl)
     return (
       <div className='Toolbar'>
-        {this.state.log ?
+        {localStorage.id ?
         <div>
           <a href='/feed'><img className='Toolbar-items' src={Trending} alt=''/></a>
           <a href='/chat'><img className='Toolbar-items' src={Chat} alt=''/></a>

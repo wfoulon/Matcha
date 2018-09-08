@@ -13,13 +13,17 @@ class Profil extends Component {
   }
   
   componentDidMount = () => {
-    const id = localStorage.id
-    axios.post('/profil/getdata', {id})
-    .then((result) => {
-      this.setState({
-        info: result.data
+    if (!localStorage.id) {
+      this.props.history.push('/')
+    } else {
+      const id = localStorage.id
+      axios.post('/profil/getdata', {id})
+      .then((result) => {
+        this.setState({
+          info: result.data
+        })
       })
-    })
+    }
   }
 
   render () {
