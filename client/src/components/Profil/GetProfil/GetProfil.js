@@ -8,14 +8,16 @@ class GetProfil extends Component {
     this.state = {
       all: null
     }
+    this.socket = this.props.socket
   }
   
-  componentDidMount = (e) => {
+  componentWillMount = (e) => {
     if (!localStorage.id) {
       this.props.history.push('/')
     } else {
       axios.get(window.location.pathname)
       .then((result) => {
+        if (result.data !== false) {
         const all = result.data
         let info = Object.keys(all).map((val, key) =>
           <ProfilCardM key={key} val={all[val]} />
@@ -23,9 +25,16 @@ class GetProfil extends Component {
         this.setState({
           all: info
         })
-      })
+        let visited = all[0].id
+        let visitor = localStorage.id
+        this.socket.emit('visit', {visitor, visited})
+        } else {
+          window.location = '/profil'
+        }
+      })    
     }
   }
+
   
   render () {
     if (this.state.all !== null) {

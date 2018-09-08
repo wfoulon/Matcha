@@ -3,7 +3,7 @@ import FormValidator from '../FormValidator/FormValidator'
 import axios from 'axios'
 
 class Chat extends React.Component {
-constructor(props){
+constructor(props){ 
     super(props);
     this.validator = new FormValidator([
     {
@@ -38,7 +38,6 @@ constructor(props){
         this.update(id)
     })
 
-    
     // const addMessage = data => {
         //     this.setState({messages: {...this.state.messages, [data.room]: {...this.state.messages[data.room], [data.messId]: data}}})
         // };    
@@ -162,7 +161,7 @@ displayChat = (e, room) => {
 }
 
 render() {
-    let validation = this.submitted ? this.validator.validate(this.state) : this.state.validation
+    /* let validation = this.submitted ? this.validator.validate(this.state) : this.state.validation */
     const {room, done, messages, message, display} = this.state
     console.log(message)
 /*     console.log(this.state.messages) */

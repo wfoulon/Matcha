@@ -49,3 +49,11 @@ CREATE TABLE IF NOT EXISTS `image` (
     creation_date DATETIME,
     chat_id VARCHAR(255)
 ); */
+
+/* CREATE TABLE `notif` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `uid` INT NOT NULL,
+  `uid_receiver` INT NOT NULL,
+  `type` INT NOT NULL,
+  `seen` INT DEFAULT NULL
+) */

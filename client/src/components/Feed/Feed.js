@@ -25,6 +25,7 @@ class Feed extends Component {
       axios.post('/feed/display', { id })
       .then((result) => {
         const all = result.data
+        console.log(all)
         let info = Object.keys(all).map((val, key) =>
           <FeedCard update={this.Update} key={key} val={all[val]} />
         )

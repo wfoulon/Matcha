@@ -64,7 +64,7 @@ class Toolbar extends Component {
         <div>
           <a href='/feed'><img className='Toolbar-items' src={Trending} alt=''/></a>
           <a href='/chat'><img className='Toolbar-items' src={Chat} alt=''/></a>
-          <img className='Toolbar-items' src={Notif} alt='' />
+          <a href='/notif'><img className='Toolbar-items' src={Notif} alt='' /></a>
           <a href='/search'><img className='Toolbar-items' src={Search} alt='' /></a>
           <IconButton aria-owns={open ? 'menu-appbar' : null} aria-haspopup='true' color='inherit' onClick={this.handleMenu}>
             <AccountCircle />

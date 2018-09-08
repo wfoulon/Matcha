@@ -69,6 +69,7 @@ class ChangeEmail extends Component {
     this.onChange = this.onChange.bind(this)
     this.submitted = false
   }
+  passwordMatch2 = (cpwd, state) => (state.pwd === cpwd)
 
   onChange = (e) => {
     this.setState( {
@@ -81,13 +82,12 @@ class ChangeEmail extends Component {
     this.setState({ validation })
     this.submitted = true
     if (validation.isValid) {
-      // const login = localStorage.login
-      // const id = localStorage.id
-      // const {uname, newemail, pwd, cpwd} = this.state
-      // axios.post('/changemail', {uname, newemail, pwd, cpwd, id, login})
-      // .then((result) => {
-      // })
-      console.log('yo')
+       const login = localStorage.login
+       const id = localStorage.id
+       const {uname, newemail, pwd, cpwd} = this.state
+       axios.post('/changemail', {uname, newemail, pwd, cpwd, id, login})
+       .then((result) => {
+      })
     }
   }
 

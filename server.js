@@ -1,5 +1,7 @@
 /* import { error } from 'util'; */
 
+/* import { error } from 'util'; */
+
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 5000
@@ -30,7 +32,7 @@ let io = require('socket.io')(server, {pingTimeout: 5000, pingInterval: 10000, t
 
 let con = mysql.createConnection({
   host: 'localhost',
-  user: 'matcha',
+  user: 'localhost',
   password: 'root42',
   multipleStatements: true
 })
@@ -51,7 +53,8 @@ io.on('connection', (socket) => {
         if (err) throw err
         else {
           let match = ures[0].match
-          con.query("INSERT INTO `message` (uid, `match`, text, creation_date, chat_id) VALUES (?,?,?,?,?)", [uid, match, message, date, room], (err, res) => {
+          let sql = "INSERT INTO `message` (uid, `match`, text, creation_date, chat_id) VALUES (?,?,?,?,?); INSERT INTO `notif` (`uid`, `uid_receiver`, `type`, `seen`) VALUES (?, ?, 5, 0)"
+          con.query(sql, [uid, match, message, date, room, uid, match], (err, res) => {
             if (err) throw err
             else {
               io.to(room).emit('RECEIVE_MESSAGE', data)
@@ -78,6 +81,18 @@ io.on('connection', (socket) => {
               }
             })          
           }
+        }
+      })
+    })
+    socket.on('visit', data =>{
+      let idvisitor = data.visitor
+      let idvisited = data.visited
+      con.query('SELECT * FROM `notif` WHERE uid = ? AND uid_receiver = ? AND type = 1', [idvisitor, idvisited], (err, res) => {
+        if (err) throw err
+        if (res.length === 0){
+          con.query('INSERT INTO `notif` (uid, uid_receiver, type, seen) VALUES (?, ?, 1, 0)', [idvisitor, idvisited], (err, result) =>{
+            if (err) throw err
+          })
         }
       })
     })
@@ -117,8 +132,13 @@ app.use(bodyParser.json())
       let sql = 'SELECT * from users WHERE id = ?'
       con.query(sql, [req.params.id], (err, resu) => {
         if (err) throw err
+        if (resu.length > 0) {
         res.send(resu)
         res.end()
+        } else {
+          res.send(false)
+          res.end()
+        }
       })
     }
   })
@@ -441,14 +461,14 @@ app.post('/like', (req, res) => {
         if (resul[0]) {
           if (req.body.id.to === resul[0].match.to) {
             let token_room = sha1(uniqid())
-            let sql = 'INSERT INTO `like`(`uid`, `match`, `status`, `token_room`) VALUES (?, ?, 2, ?); UPDATE `like` SET status = 2 WHERE `uid` = ? AND `match` = ?; UPDATE `like` SET token_room = ? WHERE `uid` = ? AND `match` = ?'
-            con.query(sql, [req.body.id, req.body.id_match, token_room, req.body.id_match, req.body.id, token_room, req.body.id_match, req.body.id], (err, result) => {
+            let sql = 'INSERT INTO `like`(`uid`, `match`, `status`, `token_room`) VALUES (?, ?, 2, ?); UPDATE `like` SET status = 2 WHERE `uid` = ? AND `match` = ?; UPDATE `like` SET token_room = ? WHERE `uid` = ? AND `match` = ?; INSERT INTO `notif` (`uid`, `uid_receiver`, `type`, `seen`) VALUES (?, ?, 3, 0)'
+            con.query(sql, [req.body.id, req.body.id_match, token_room, req.body.id_match, req.body.id, token_room, req.body.id_match, req.body.id, req.body.id, req.body.id_match], (err, result) => {
               if (err) throw err
             })
           }
         } else {
-          let sql = 'INSERT INTO `like`(`uid`, `match`, `status`, `token_room`) VALUES (?, ?, 1, NULL)'
-          con.query(sql, [req.body.id, req.body.id_match], (err, result) => {
+          let sql = 'INSERT INTO `like`(`uid`, `match`, `status`, `token_room`) VALUES (?, ?, 1, NULL); INSERT INTO `notif`(`uid`, `uid_receiver`, `type`, `seen`) VALUES (?, ?, 2, 0)'
+          con.query(sql, [req.body.id, req.body.id_match, req.body.id, req.body.id_match], (err, result) => {
             if (err) throw err
           })
         }
@@ -471,12 +491,13 @@ app.post('/profil/match/dislike', (req, res) => {
       con.query(sql, [resu[0].uid, resu[0].match], (res, resul) => {
         if (err) throw err
       })
-      con.query('UPDATE `like` SET status = -1 WHERE uid = ? AND `match` = ?', [resu[0].match, resu[0].uid], (err, results) => {
+      let sql2 = 'UPDATE `like` SET status = -1, token_room = NULL WHERE uid = ? AND `match` = ?; INSERT INTO `notif`(`uid`, `uid_receiver`, `type`, `seen`) VALUES (?, ?, 4, 0)'
+      con.query(sql2, [resu[0].match, resu[0].uid, resu[0].uid, resu[0].match], (err, results) => {
         if (err) throw err
       })
     } else {
-      let sql = 'INSERT INTO `like`(`uid`, `match`, `status`, `token_room`) VALUES (?, ?, -1, NULL)'
-      con.query(sql, [req.body.id, req.body.id_match], (err, result) => {
+      let sql = 'INSERT INTO `like`(`uid`, `match`, `status`, `token_room`) VALUES (?, ?, -1, NULL); INSERT INTO `notif`(`uid`, `uid_receiver`, `type`, `seen`) VALUES (?, ?, 4, 0)'
+      con.query(sql, [req.body.id, req.body.id_match, req.body.id, req.body.id_match], (err, result) => {
         if (err) throw err
       })
     }
@@ -809,3 +830,86 @@ function getDistanceFromLatLonInKm (lat1, lon1, lat2, lon2) {
 function deg2rad (deg) {
   return deg * (Math.PI / 180)
 }
+
+app.post('/visit', (req, res) => {
+  con.query('SELECT * FROM `notif` WHERE `type` = 1 AND `uid_receiver` = ?', [req.body.uid], (err, result) => {
+    if (err) throw err
+    if (result.length !== 0){
+      con.query('SELECT `uname` FROM `users` WHERE `id` = ?', [result[0].uid], (err, resul) => {
+        if (err) throw err
+        res.send(resul)
+        res.end()
+      })
+    } else {
+      res.send(null)
+      res.end()
+    }
+  })
+})
+
+app.post('/notiflike', (req, res) =>{
+  con.query('SELECT * FROM `notif` WHERE `type` = 2 AND `uid_receiver` = ?', [req.body.uid], (err, result) => {
+    if (err) throw err
+    if (result.length !== 0){
+      con.query('SELECT `uname` FROM `users` WHERE `id` = ?', [result[0].uid], (err, resul) => {
+        if (err) throw err
+        res.send(resul)
+        res.end()
+      })
+    } else {
+      res.send(null)
+      res.end()
+    }
+  })
+})
+
+app.post('/notifmatch', (req, res) =>{
+  con.query('SELECT * FROM `notif` WHERE `type` = 3 AND `uid_receiver` = ?', [req.body.uid], (err, result) => {
+    if (err) throw err
+    if (result.length !== 0){
+      con.query('SELECT `uname` FROM `users` WHERE `id` = ?', [result[0].uid], (err, resul) => {
+        if (err) throw err
+        res.send(resul)
+        res.end()
+      })
+    } else {
+      res.send(null)
+      res.end()
+    }
+  })
+})
+
+app.post('/notifblock', (req, res) =>{
+  con.query('SELECT * FROM `notif` WHERE `type` = 4 AND `uid_receiver` = ?', [req.body.uid], (err, result) => {
+    if (err) throw err
+    if (result.length !== 0){
+      con.query('SELECT `uname` FROM `users` WHERE `id` = ?', [result[0].uid], (err, resul) => {
+        if (err) throw err
+        res.send(resul)
+        res.end()
+      })
+    } else {
+      res.send(null)
+      res.end()
+    }
+  })
+})
+
+app.post('/notifmess', (req, res) =>{
+  con.query('SELECT * FROM `notif` WHERE `type` = 5 AND `uid_receiver` = ?', [req.body.uid], (err, result) => {
+    if (err) throw err
+    if (result.length !== 0){
+      con.query('SELECT `uname` FROM `users` WHERE `id` = ?', [result[0].uid], (err, resul) => {
+        if (err) throw err
+        let tab = []
+        tab = result.length + resul[0].uname 
+        res.send(tab)
+        console.log(tab)
+        res.end()
+      })
+    } else {
+      res.send(null)
+      res.end()
+    }
+  })
+})

@@ -17,6 +17,7 @@ import Feed from './components/Feed/Feed'
 import GetProfil from './components/Profil/GetProfil/GetProfil'
 import Account from './components/Account/Account'
 import Profil from './container/Profil/Profil'
+import Notif from './components/Notifications/Notif'
 import io from 'socket.io-client'
 
 const socket = io('localhost:3000')
@@ -30,12 +31,13 @@ const Root = () => (
       <Route path='/search' component={Search} />
       <Route exact path='/profil' component={Profil} />
       <Route path='/feed' component={Feed} />
-      <Route exact path='/profil/:id' component={GetProfil} />
+      <Route exact path='/profil/:id' component={props => <GetProfil socket={socket} />} />
       <Route exact path='/account' component={Account} />
       <Route exact path='/chat' component={props => <Chat socket={socket} />} />
       <Route exact path='/validation/:token/:uname' component={Validation} />
       <Route exact path='/forgot_password' component={Forgot} />
       <Route exact path='/reset_password/:token/:uname' component={Reset} />
+      <Route exact path='/notif' component={props => <Notif socket={socket} />} />
     </main>
   </Aux>
 )
