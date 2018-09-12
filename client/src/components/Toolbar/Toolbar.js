@@ -12,6 +12,7 @@ import Trending from '../../assets/fire.svg'
 import './Toolbar.css'
 
 
+
 class Toolbar extends Component {
   constructor(props) {
     super(props)
@@ -20,17 +21,19 @@ class Toolbar extends Component {
     }
     this.socket = this.props.socket
   }
+
+  componentWillMount = (e) => {
+    let uid = localStorage.id
+    if (uid){
+      this.socket.emit('notif', {uid})
+      this.socket.on('/sendnotif' + uid, data =>{
+        console.log(data)
+      })
+    }
+  }
   
   componentDidMount() {
     let login = localStorage.getItem('login')
-/*     let visited = "test"
-    this.socket.emit('visit', {visitor: login, visited})
-    // this.socket.on('test', (data) => {
-    //   console.log(data)
-    // })
-    this.socket.on('notifVisit/' + login, data => {
-      console.log(data)
-    }) */
     if (login) {
       this.setState({
         log: true

@@ -13,7 +13,16 @@ class Notif extends Component {
           mess: null
       }
     this.socket = this.props.socket
+    window.onbeforeunload= (event) => {
+        let uid = localStorage.id
+        if (uid){
+            axios.post('/seen', {uid})
+            .then((result => {
+                console.log(result)
+            }))
+        }
     }
+}
 
 componentWillMount = (e) => {
     let uid = localStorage.id
@@ -26,7 +35,6 @@ componentWillMount = (e) => {
             if (visit.length > 0) {
                 let info = Object.keys(visit).map((val, key) =>
                 <CustomizedSnackbars key={key} mess={visit[val].uname + ' has visited your profil'} variant={'info'} />
-                // <span key={key} val={visit[val]} >{visit[val].uname} has visited your profil</span>
                 )
                 this.setState({
                     visit: info
@@ -39,7 +47,6 @@ componentWillMount = (e) => {
             if (like.length > 0) {
                 let lk = Object.keys(like).map((val, key) =>
                 <CustomizedSnackbars key={key} mess={like[val].uname + ' liked your profil'} variant={'success'} />
-                // <span key={key} val={visit[val]} >{visit[val].uname} has visited your profil</span>
                 )
                 this.setState({
                     like: lk
@@ -52,7 +59,6 @@ componentWillMount = (e) => {
             if (match.length > 0) {
                 let mtc = Object.keys(match).map((val, key) =>
                 <CustomizedSnackbars key={key} mess={match[val].uname + ' matched with you'} variant={'success'} />
-                // <span key={key} val={visit[val]} >{visit[val].uname} has visited your profil</span>
                 )
                 this.setState({
                     match: mtc
@@ -65,7 +71,6 @@ componentWillMount = (e) => {
             if (block.length > 0) {
                 let blk = Object.keys(block).map((val, key) =>
                 <CustomizedSnackbars key={key} mess={block[val].uname + ' blocked your profil'} variant={'error'} />
-                // <span key={key} val={visit[val]} >{visit[val].uname} has visited your profil</span>
                 )
                 this.setState({
                     block: blk
@@ -73,18 +78,16 @@ componentWillMount = (e) => {
             }
         })
         axios.post('/notifmess', {uid})
-        .then((resul) =>{
-            console.log(resul.data)
+        .then((resul) =>{            
             const mess = resul.data
-            if (mess.length > 0) {
+            if (mess.length > 0){
                 let msg = Object.keys(mess).map((val, key) =>
                 <CustomizedSnackbars key={key} mess={mess[val].uname + ' has sent a message'} variant={'warning'} />
-                // <span key={key} val={visit[val]} >{visit[val].uname} has visited your profil</span>
                 )
                 this.setState({
                     mess: msg
                 })
-            }
+            } 
         })
     }
 }
