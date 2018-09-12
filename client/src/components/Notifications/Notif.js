@@ -18,7 +18,6 @@ class Notif extends Component {
         if (uid){
             axios.post('/seen', {uid})
             .then((result => {
-                console.log(result)
             }))
         }
     }

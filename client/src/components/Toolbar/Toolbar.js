@@ -20,19 +20,27 @@ class Toolbar extends Component {
       log: false
     }
     this.socket = this.props.socket
+
+/*     window.onbeforeunload = (event) => {
+      let uid = localStorage.id
+      if (uid){
+        this.socket.emit('disconnect', {uid})
+      }
+    } */
   }
+
 
   componentWillMount = (e) => {
     let uid = localStorage.id
     if (uid){
       this.socket.emit('notif', {uid})
       this.socket.on('/sendnotif' + uid, data =>{
-        console.log(data)
+        //console.log(data)
       })
     }
   }
   
-  componentDidMount() {
+  componentDidMount= (e) =>{
     let login = localStorage.getItem('login')
     if (login) {
       this.setState({

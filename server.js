@@ -97,13 +97,22 @@ io.on('connection', (socket) => {
       })
     })
     socket.on('notif', data =>{
-      let uid = ent.encode(data.uid)
+      let uid = data.uid
       con.query('SELECT * FROM `notif` WHERE `uid_receiver` = ? AND `seen` = 0', [uid], (err, result) =>{
         if (err) throw err
         if (result.length !== 0){
-          console.log(result)
+          //console.log(result)
           io.emit('/sendnotif' + uid, result)
         }
+      })
+    })
+    socket.on('disconnect', data =>{
+      console.log(data)
+      let uid = data.uid
+      let date = new Date()
+      con.query('UPDATE `users` SET `connection` = ?  WHERE `id` = ?', [date, uid], (err, res) => {
+        if (err) throw err
+        console.log(res)
       })
     })
 })
