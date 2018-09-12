@@ -6,7 +6,8 @@ class GetProfil extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      all: null
+      all: null,
+      img: null
     }
     this.socket = this.props.socket
   }
@@ -28,19 +29,37 @@ class GetProfil extends Component {
         let visited = all[0].id
         let visitor = localStorage.id
         this.socket.emit('visit', {visitor, visited})
-        } else {
-          window.location = '/profil'
-        }
-      })    
-    }
+        console.log(visited)
+        axios.post('/profil/image/display', {id: visited})
+        .then((result) => {
+          this.setState({
+            img: result.data
+          })
+          console.log(result.data)
+        })
+      } else {
+        window.location = '/profil'
+      }
+    })
+    // axios.post('/profil/image/display', [this])
   }
+}
 
-  
-  render () {
-    if (this.state.all !== null) {
+
+render () {
+  console.log(this.state.img)
+    // console.log(this.state.all[0].id)
+    // console.log(this.state.all)
+    if (this.state.all !== null && this.state.img !== null) {
+      // console.log(this.state.img[0].post_url)
       return (
+        <div>
         <div className='Content'>
           {this.state.all}
+        </div>
+        <div>
+        {this.state.img.length === 0 ? '' : <img src={require('../../../../../images/users/' + this.state.img[0].post_url)} alt='' className='imgProfil' />}
+        </div>
         </div>
       )
     }

@@ -39,7 +39,14 @@ class Settings extends Component {
       method: 'matches',
       args: [],
       validWhen: true,
-      message: 'X chars max'
+      message: 'Bio is not valid'
+    },
+    {
+      field: 'age',
+      method: 'matches',
+      args: [/\s[0-1]{1}[0-9]{0,2}/],
+      validWhen: true,
+      message: 'Your age is not valid'
     },
     ])
     this.state = {
@@ -115,6 +122,7 @@ class Settings extends Component {
                   </div>
                   <div>
                     <Input name="age" label="Age" icon="" grouptype="text" validate error="wrong" success="right" onChange={this.onChange}/>
+                    <span>{validation.age.message}</span>
                   </div>
                   <div>
                     <select className="mdb-select" name='sexual_orientation' onChange={this.onChange}>

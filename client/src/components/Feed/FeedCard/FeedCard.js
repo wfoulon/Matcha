@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import {NotificationContainer, NotificationManager} from 'react-notifications'
 
 import like from '../../../assets/heart.svg'
 import dislike from '../../../assets/cancel.svg'
@@ -16,7 +15,6 @@ class FeedCard extends Component {
     super(props)
     this.state = {
       img: null
-
     }
   }
   
@@ -29,22 +27,6 @@ class FeedCard extends Component {
     .then((result) => {
       this.props.update()
     })
-    switch (type) {
-      case 'info':
-      NotificationManager.info('Info message')
-      break
-      case 'success':
-      NotificationManager.success('DISLIKE')
-      break
-      case 'warning':
-      NotificationManager.warning('Warning message', 'Close after 3000ms', 3000)
-      break
-      case 'error':
-      NotificationManager.error('Error message', 'Click me!', 5000, () => {
-        alert('callback')
-      })
-      break
-    }
   }
     
     onLike = (e, type) => {
@@ -55,22 +37,6 @@ class FeedCard extends Component {
       .then((result) => {
         this.props.update()
       })
-      switch (type) {
-        case 'info':
-        NotificationManager.info('Info message')
-        break
-        case 'success':
-        NotificationManager.success('LIKE')
-        break
-        case 'warning':
-        NotificationManager.warning('Warning message', 'Close after 3000ms', 3000)
-        break
-        case 'error':
-        NotificationManager.error('Error message', 'Click me!', 5000, () => {
-          alert('callback')
-        })
-        break
-      }
     }
 
     render () {
@@ -98,11 +64,10 @@ class FeedCard extends Component {
               {!val ? '' : <p>{val['bio']}</p> }
             </div>
             <div className='Card-vote'>
-              <img src={like} style={{width: '50px'}} alt='' onClick={e => this.onLike(e, 'success')}/>
-              <img src={dislike} style={{width: '50px'}} alt='' onClick={e => this.onDislike(e, 'success')}/>
+              <img src={like} style={{width: '50px'}} alt='' onClick={this.onLike}/>
+              <img src={dislike} style={{width: '50px'}} alt='' onClick={this.onDislike}/>
             </div>
           </div>
-          <NotificationContainer/>
       </div>
       )
     }

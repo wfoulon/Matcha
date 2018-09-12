@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import FormValidator from '../FormValidator/FormValidator'
 import axios from 'axios'
 
@@ -33,14 +33,10 @@ constructor(props){
     this.update = this.update.bind(this)
     this.socket = this.props.socket
     this.socket.on('RECEIVE_MESSAGE', (data) => {
-        // console.log(data)
         let id = localStorage.id
         this.update(id)
     })
-
-    // const addMessage = data => {
-        //     this.setState({messages: {...this.state.messages, [data.room]: {...this.state.messages[data.room], [data.messId]: data}}})
-        // };    
+ 
     
         this.sendMessage = (e, token) => {
             e.preventDefault();
@@ -63,32 +59,22 @@ constructor(props){
 update = (id) => {
     axios.post('getAllMess', { id })
     .then((result) => {
-        // console.log(result.data)
         this.setState({
             messages: result.data,
             done: true
         })
-        // const all = result.data
-        // let mess = Object.keys(all).map((val, key) =>
-        // <div key={key} val={all[val]} className='test'></div>
-        // )
-        // this.setState({
-        //     all: mess
-        // })
     })
 }
 componentWillMount = (e) => {
     let id = localStorage.id
     if (id) {
         this.socket.on('receive/conv/' + id, (data) => {
-            // console.log(data)
             this.setState({
                 room: data
             })
             let message = {}
             let disp = {}
             for (let i = 0; i < data.length; i++) {
-                // messages[data[i].token_room] = {}
                 this.socket.emit('joinRoom', data[i].token_room)
                 message["mess" + data[i].token_room] = ''
                 disp[data[i].token_room] = {display: 'none'}
@@ -104,40 +90,12 @@ componentWillMount = (e) => {
         this.socket.emit('getAll/Conv', {id})
         axios.post('getAllMess', { id })
         .then((result) => {
-            // console.log(result.data)
             this.setState({
                 messages: result.data,
-                // done: true
             })
-            // const all = result.data
-            // let mess = Object.keys(all).map((val, key) =>
-            // <div key={key} val={all[val]} className='test'></div>
-            // )
-            // this.setState({
-            //     all: mess
-            // })
         })
     }
 }
-
-// componentDidMount = (e) => {
-//     const id = localStorage.id
-//     axios.post('getAllMess', { id })
-//     .then((result) => {
-//         console.log(result.data)
-//         this.setState({
-//             messages: result.data,
-//             done: true
-//         })
-//         // const all = result.data
-//         // let mess = Object.keys(all).map((val, key) =>
-//         // <div key={key} val={all[val]} className='test'></div>
-//         // )
-//         // this.setState({
-//         //     all: mess
-//         // })
-//     })
-// }
 
 handleChange = (e) => {
     e.preventDefault()
@@ -161,14 +119,11 @@ displayChat = (e, room) => {
 }
 
 render() {
-    /* let validation = this.submitted ? this.validator.validate(this.state) : this.state.validation */
     const {room, done, messages, message, display} = this.state
     console.log(message)
-/*     console.log(this.state.messages) */
     let allRoom = null
     let allUser = null
     if (room.length > 0 && done && Object.keys(message).length > 0) {
-        // console.log(message)
         allUser = room.map((key, i) =>
         <div key={i}>
             <span style={{cursor: 'pointer'}} onClick={e => this.displayChat(e, key.token_room)}>{key.uname}</span>
@@ -209,40 +164,14 @@ render() {
     }
     <div className='test'>
     {this.state.all}
-</div>
-    return (
-        <div>
-            {allUser}
-            {allRoom}
-        {/* <div className="container">
-            <div className="row">
-                <div className="col-4">
-                    <div className="card">
-                        <div className="card-body">
-                            <div className="card-title" align="center">Chat</div>
-                            <hr/>
-                            <div className="messages">
-                                {this.state.messages.map((message, key) => {
-                                    return (
-                                        <div key={key} >{message.author}: {message.message}</div>
-                                    )
-                                })}
-                            </div>
-                        </div>
-                        <div className="card-footer">
-                            <input type="text" placeholder="Username" className="form-control" value={this.state.username} readOnly />
-                            <br/>
-                            <input name="message" type="text" placeholder="Message" className="form-control" value={this.state.message} onChange={e => this.setState({message: e.target.value})}/>
-                            <br/>
-                            <button onClick={this.sendMessage} className="btn btn-primary form-control">Send</button>
-                        </div>
-                    </div>
-                </div>
+    </div>
+        return (
+            <div>
+                {allUser}
+                {allRoom}
             </div>
-        </div> */}
-        </div>
-    )
-}
+        )
+    }
 }
 
 export default Chat

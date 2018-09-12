@@ -1,5 +1,4 @@
 import React from 'react'
-import { Checkbox, CheckboxGroup } from "react-checkbox-group"
 import InputRange from 'react-input-range'
 import { WithContext as ReactTags } from 'react-tag-input'
 import { Button } from 'semantic-ui-react'
@@ -23,8 +22,8 @@ class Search extends React.Component {
     this.state = {
       tags: [],
       info: null,
-      gender: [],
-      sexual: [],
+      // gender: [],
+      // sexual: [],
       age: [],
       SortBy: '',
       value: {min: 18, max: 35},
@@ -51,17 +50,17 @@ class Search extends React.Component {
   }
   
   
-  genderChanged = (gender) => {
-    this.setState({
-      gender: gender
-    });
-  }
+  // genderChanged = (gender) => {
+  //   this.setState({
+  //     gender: gender
+  //   });
+  // }
 
-  sexualChanged = (sexual) => {
-    this.setState({
-      sexual: sexual
-    })
-  }
+  // sexualChanged = (sexual) => {
+  //   this.setState({
+  //     sexual: sexual
+  //   })
+  // }
 
   onSearch = () => {
     const id = localStorage.id
@@ -103,7 +102,7 @@ class Search extends React.Component {
       <div className='SearchContent'>
         <div className='ParametersContent'>
           <h1 style={{textAlign: 'center'}}>Search Parameter</h1>
-          <div>
+          {/* <div>
             <CheckboxGroup
             checkboxDepth={2}
             name="gender"
@@ -121,7 +120,7 @@ class Search extends React.Component {
               <label><Checkbox value='Homosexual'/> Homosexual</label>
               <label><Checkbox value='Bisexual'/> Bisexual</label>
             </CheckboxGroup>
-          </div>
+          </div> */}
           <div className=''>
           <InputRange
               draggableTrack

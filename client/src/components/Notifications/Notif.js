@@ -25,7 +25,7 @@ componentWillMount = (e) => {
             const visit = result.data
             if (visit.length > 0) {
                 let info = Object.keys(visit).map((val, key) =>
-                <CustomizedSnackbars key={key} mess={visit[val].uname + ' has visited your profil'} variant={'info'} />
+                <CustomizedSnackbars key={key} mess={'Someone has visited your profil'} variant={'info'} />
                 // <span key={key} val={visit[val]} >{visit[val].uname} has visited your profil</span>
                 )
                 this.setState({
@@ -38,7 +38,7 @@ componentWillMount = (e) => {
             const like = resul.data
             if (like.length > 0) {
                 let lk = Object.keys(like).map((val, key) =>
-                <CustomizedSnackbars key={key} mess={like[val].uname + ' liked your profil'} variant={'success'} />
+                <CustomizedSnackbars key={key} mess={'Someone liked your profil'} variant={'success'} />
                 // <span key={key} val={visit[val]} >{visit[val].uname} has visited your profil</span>
                 )
                 this.setState({
@@ -51,7 +51,7 @@ componentWillMount = (e) => {
             const match = resul.data
             if (match.length > 0) {
                 let mtc = Object.keys(match).map((val, key) =>
-                <CustomizedSnackbars key={key} mess={match[val].uname + ' matched with you'} variant={'success'} />
+                <CustomizedSnackbars key={key} mess={'You have a new match'} variant={'success'} />
                 // <span key={key} val={visit[val]} >{visit[val].uname} has visited your profil</span>
                 )
                 this.setState({
@@ -74,11 +74,10 @@ componentWillMount = (e) => {
         })
         axios.post('/notifmess', {uid})
         .then((resul) =>{
-            console.log(resul.data)
             const mess = resul.data
             if (mess.length > 0) {
                 let msg = Object.keys(mess).map((val, key) =>
-                <CustomizedSnackbars key={key} mess={mess[val].uname + ' has sent a message'} variant={'warning'} />
+                <CustomizedSnackbars key={key} mess={'You have received a new message'} variant={'warning'} />
                 // <span key={key} val={visit[val]} >{visit[val].uname} has visited your profil</span>
                 )
                 this.setState({
