@@ -73,7 +73,7 @@ componentWillMount = (e) => {
             const block = resul.data
             if (block.length > 0) {
                 let blk = Object.keys(block).map((val, key) =>
-                <CustomizedSnackbars key={key} mess={block[val].uname + ' blocked your profil'} variant={'error'} />
+                <CustomizedSnackbars key={key} mess={'Someone blocked your profil'} variant={'error'} />
                 )
                 this.setState({
                     block: blk
