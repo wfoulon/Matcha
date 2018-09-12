@@ -89,10 +89,20 @@ io.on('connection', (socket) => {
       let idvisited = data.visited
       con.query('SELECT * FROM `notif` WHERE uid = ? AND uid_receiver = ? AND type = 1', [idvisitor, idvisited], (err, res) => {
         if (err) throw err
-        if (res.length === 0){
+        if (res.length !== 0){
           con.query('INSERT INTO `notif` (uid, uid_receiver, type, seen) VALUES (?, ?, 1, 0)', [idvisitor, idvisited], (err, result) =>{
             if (err) throw err
           })
+        }
+      })
+    })
+    socket.on('notif', data =>{
+      let uid = ent.encode(data.uid)
+      con.query('SELECT * FROM `notif` WHERE `uid_receiver` = ? AND `seen` = 0', [uid], (err, result) =>{
+        if (err) throw err
+        if (result.length !== 0){
+          console.log(result)
+          io.emit('/sendnotif' + uid, result)
         }
       })
     })
@@ -981,7 +991,7 @@ function deg2rad (deg) {
 }
 
 app.post('/visit', (req, res) => {
-  con.query('SELECT * FROM `notif` WHERE `type` = 1 AND `uid_receiver` = ?', [req.body.uid], (err, result) => {
+  con.query('SELECT * FROM `notif` WHERE `type` = 1 AND `uid_receiver` = ? AND `seen` = 0', [req.body.uid], (err, result) => {
     if (err) throw err
     res.send(result)
     res.end()
@@ -989,7 +999,7 @@ app.post('/visit', (req, res) => {
 })
 
 app.post('/notiflike', (req, res) => {
-  con.query('SELECT * FROM `notif` WHERE `type` = 2 AND `uid_receiver` = ?', [req.body.uid], (err, result) => {
+  con.query('SELECT * FROM `notif` WHERE `type` = 2 AND `uid_receiver` = ? AND `seen` = 0 ', [req.body.uid], (err, result) => {
     if (err) throw err
     res.send(result)
     res.end()
@@ -997,7 +1007,7 @@ app.post('/notiflike', (req, res) => {
 })
 
 app.post('/notifmatch', (req, res) => {
-  con.query('SELECT * FROM `notif` WHERE `type` = 3 AND `uid_receiver` = ?', [req.body.uid], (err, result) => {
+  con.query('SELECT * FROM `notif` WHERE `type` = 3 AND `uid_receiver` = ? AND `seen` = 0', [req.body.uid], (err, result) => {
     if (err) throw err
     res.send(result)
     res.end()
@@ -1005,7 +1015,7 @@ app.post('/notifmatch', (req, res) => {
 })
 
 app.post('/notifblock', (req, res) => {
-  con.query('SELECT * FROM `notif` WHERE `type` = 4 AND `uid_receiver` = ?', [req.body.uid], (err, result) => {
+  con.query('SELECT * FROM `notif` WHERE `type` = 4 AND `uid_receiver` = ? AND `seen` = 0', [req.body.uid], (err, result) => {
     if (err) throw err
     res.send(result)
     res.end()
@@ -1013,9 +1023,19 @@ app.post('/notifblock', (req, res) => {
 })
 
 app.post('/notifmess', (req, res) => {
-  con.query('SELECT * FROM `notif` WHERE `type` = 5 AND `uid_receiver` = ?', [req.body.uid], (err, result) => {
+  con.query('SELECT * FROM `notif` WHERE `type` = 5 AND `uid_receiver` = ? AND `seen` = 0', [req.body.uid], (err, result) => {
     if (err) throw err
     res.send(result)
     res.end()
+  })
+})
+
+app.post('/seen', (req, res) => {
+  con.query('UPDATE `notif` SET `seen` = 1 WHERE `uid_receiver` = ?', [req.body.uid], (err, result) =>{
+    if (err) throw err
+    else{
+      res.send(null)
+      res.end()
+    }
   })
 })

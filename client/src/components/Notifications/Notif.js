@@ -13,7 +13,16 @@ class Notif extends Component {
           mess: null
       }
     this.socket = this.props.socket
+    window.onbeforeunload= (event) => {
+        let uid = localStorage.id
+        if (uid){
+            axios.post('/seen', {uid})
+            .then((result => {
+                console.log(result)
+            }))
+        }
     }
+}
 
 componentWillMount = (e) => {
     let uid = localStorage.id
@@ -65,7 +74,6 @@ componentWillMount = (e) => {
             if (block.length > 0) {
                 let blk = Object.keys(block).map((val, key) =>
                 <CustomizedSnackbars key={key} mess={block[val].uname + ' blocked your profil'} variant={'error'} />
-                // <span key={key} val={visit[val]} >{visit[val].uname} has visited your profil</span>
                 )
                 this.setState({
                     block: blk
@@ -75,7 +83,7 @@ componentWillMount = (e) => {
         axios.post('/notifmess', {uid})
         .then((resul) =>{
             const mess = resul.data
-            if (mess.length > 0) {
+            if (mess.length > 0){
                 let msg = Object.keys(mess).map((val, key) =>
                 <CustomizedSnackbars key={key} mess={'You have received a new message'} variant={'warning'} />
                 // <span key={key} val={visit[val]} >{visit[val].uname} has visited your profil</span>
@@ -83,7 +91,7 @@ componentWillMount = (e) => {
                 this.setState({
                     mess: msg
                 })
-            }
+            } 
         })
     }
 }

@@ -1,6 +1,7 @@
 import React from 'react'
 import FormValidator from '../FormValidator/FormValidator'
 import axios from 'axios'
+import './Chat.css'
 
 class Chat extends React.Component {
 constructor(props){ 
@@ -126,7 +127,7 @@ render() {
     if (room.length > 0 && done && Object.keys(message).length > 0) {
         allUser = room.map((key, i) =>
         <div key={i}>
-            <span style={{cursor: 'pointer'}} onClick={e => this.displayChat(e, key.token_room)}>{key.uname}</span>
+            <span className="user" style={{cursor: 'pointer'}} onClick={e => this.displayChat(e, key.token_room)}>{key.uname}</span>
         </div>
         )
         allRoom = room.map((key, i) =>

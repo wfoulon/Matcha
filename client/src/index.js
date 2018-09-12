@@ -24,7 +24,7 @@ const socket = io('localhost:3000')
 
 const Root = () => (
   <Aux>
-    <Toolbar />
+    <Toolbar socket={socket}/>
     <main>
       <Route exact path='/' component={Inscription} />
       <Route exact path='/connexion' component={Connexion} />

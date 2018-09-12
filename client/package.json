@@ -14,6 +14,7 @@
     "nodemailer": "^4.6.7",
     "nodemon": "^1.17.5",
     "react": "^16.4.1",
+    "react-beforeunload": "^1.0.4",
     "react-bootstrap": "^0.32.1",
     "react-bootstrap-sidebar": "0.0.1",
     "react-chips": "^0.6.4",

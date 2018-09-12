@@ -38,6 +38,7 @@
     "prototype-auth-service": "^2.1.5",
     "react": "^16.4.1",
     "react-auth-flow": "^1.0.6",
+    "react-beforeunload": "^1.0.4",
     "react-bootstrap-sidebar": "0.0.1",
     "react-checkbox-group": "^4.0.1",
     "react-chips": "^0.6.4",
