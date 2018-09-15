@@ -1,7 +1,3 @@
-/* import { error } from 'util'; */
-
-/* import { error } from 'util'; */
-
 const express = require('express')
 const app = express()
 const port = process.env.PORT || 5000
@@ -32,80 +28,88 @@ let io = require('socket.io')(server, {pingTimeout: 5000, pingInterval: 10000, t
 
 let con = mysql.createConnection({
   host: 'localhost',
-  user: 'localhost',
+  user: 'matcha',
   password: 'root42',
   multipleStatements: true
 })
 
+let SendNotifGen = null
+
 io.on('connection', (socket) => {
-    // console.log(socket.id)
-    socket.on('joinRoom', (data) => {
-      socket.join(data)
+  // console.log(socket.id)
+  socket.on('joinRoom', (data) => {
+    socket.join(data)
+  })
+  socket.on('SEND_MESSAGE', data => {
+    let uname = ent.encode(data.author)
+    let message = ent.encode(data.message)
+    let uid = data.id
+    let room = ent.encode(data.room)
+    console.log(data.room)
+    let date = new Date()
+    con.query('SELECT `match` FROM `like` WHERE uid = ? AND token_room = ?', [uid, room], (err, ures) => {
+      if (err) throw err
+      else {
+        let match = ures[0].match
+        let sql = 'INSERT INTO `message` (uid, `match`, text, creation_date, chat_id) VALUES (?,?,?,?,?); INSERT INTO `notif` (`uid`, `uid_receiver`, `type`, `seen`) VALUES (?, ?, 5, 0)'
+        con.query(sql, [uid, match, message, date, room, uid, match], (err, res) => {
+          if (err) throw err
+          else {
+            sendNotif(match, 'You have a new message !')
+            io.to(room).emit('RECEIVE_MESSAGE', data)
+          }
+        })
+      }
     })
-    socket.on('SEND_MESSAGE', data => {
-      let uname = ent.encode(data.author)
-      let message = ent.encode(data.message)
-      let uid = data.id
-      let room = ent.encode(data.room)
-      console.log(data.room)
-      let date = new Date()
-      con.query("SELECT `match` FROM `like` WHERE uid = ? AND token_room = ?", [uid, room], (err, ures) => {
-        if (err) throw err
-        else {
-          let match = ures[0].match
-          let sql = "INSERT INTO `message` (uid, `match`, text, creation_date, chat_id) VALUES (?,?,?,?,?); INSERT INTO `notif` (`uid`, `uid_receiver`, `type`, `seen`) VALUES (?, ?, 5, 0)"
-          con.query(sql, [uid, match, message, date, room, uid, match], (err, res) => {
+  })
+  socket.on('getAll/Conv', data => {
+    let id = data.id
+    con.query('SELECT * FROM `like` WHERE uid = ? AND status = 2', [id], (err, result) => {
+      if (err) throw err
+      else {
+        for (let i = 0; i < result.length; i++) {
+          con.query('SELECT uname FROM users WHERE id = ?', [result[i].match], (err, ures) => {
             if (err) throw err
             else {
-              io.to(room).emit('RECEIVE_MESSAGE', data)
+              result[i]['uname'] = ures[0].uname
+              if (i === result.length - 1) io.emit('receive/conv/' + id, result)
             }
           })
         }
-      })
-      
+      }
+    })
   })
-    socket.on('getAll/Conv', data => {
-
-      let id = data.id
-      con.query('SELECT * FROM `like` WHERE uid = ? AND status = 2', [id], (err, result) => {
-        if (err) throw err
-        else {
-          for (let i = 0; i < result.length; i++) {
-            con.query('SELECT uname FROM users WHERE id = ?', [result[i].match], (err, ures) => {
-              if (err) throw err
-              else {
-                result[i]['uname'] = ures[0].uname
-                if (i === result.length - 1)
-                  // console.log(result)
-                  io.emit('receive/conv/' + id, result)
-              }
-            })          
+  socket.on('visit', data => {
+    console.log(data)
+    let idvisitor = data.visitor
+    let idvisited = data.visited
+    con.query('SELECT * FROM `notif` WHERE uid = ? AND uid_receiver = ? AND type = 1', [idvisitor, idvisited], (err, res) => {
+      if (err) throw err
+      if (res.length === 0) {
+        con.query('INSERT INTO `notif` (uid, uid_receiver, type, seen) VALUES (?, ?, 1, 0)', [idvisitor, idvisited], (err, result) => {
+          if (err) throw err
+          else {
+            sendNotif(idvisited, 'You have a new visit !')
           }
-        }
-      })
+        })
+      }
     })
-    socket.on('visit', data =>{
-      let idvisitor = data.visitor
-      let idvisited = data.visited
-      con.query('SELECT * FROM `notif` WHERE uid = ? AND uid_receiver = ? AND type = 1', [idvisitor, idvisited], (err, res) => {
-        if (err) throw err
-        if (res.length !== 0){
-          con.query('INSERT INTO `notif` (uid, uid_receiver, type, seen) VALUES (?, ?, 1, 0)', [idvisitor, idvisited], (err, result) =>{
-            if (err) throw err
-          })
-        }
-      })
-    })
-    socket.on('notif', data =>{
-      let uid = ent.encode(data.uid)
-      con.query('SELECT * FROM `notif` WHERE `uid_receiver` = ? AND `seen` = 0', [uid], (err, result) =>{
-        if (err) throw err
-        if (result.length !== 0){
-          console.log(result)
-          io.emit('/sendnotif' + uid, result)
-        }
-      })
-    })
+  })
+  // socket.on('notif', data => {
+  //   let uid = ent.encode(data.uid)
+  //   con.query('SELECT * FROM `notif` WHERE `uid_receiver` = ? AND `seen` = 0', [uid], (err, result) => {
+  //     if (err) throw err
+  //     if (result.length !== 0) {
+  //       console.log(result)
+  //       io.emit('/sendnotif' + uid, result)
+  //     }
+  //   })
+  // })
+
+  let sendNotif = (id, mess) => {
+    io.emit('sendnotif/' + id, mess)
+  }
+  SendNotifGen = sendNotif
 })
 
 let db = fs.readFileSync('./config/Matcha.sql', 'UTF-8')
@@ -399,15 +403,20 @@ app.post('/feed/display', (req, res) => {
   let sql = 'SELECT * from users WHERE id = ?'
   con.query(sql, [id], (err, result) => {
     if (err) throw err
-    let sexual = result[0].sexual_orientation
-    let gender = result[0].gender
-    let age = result[0].age
-    let x = 5
-    let y = 5
-    let agemin = age - (x)
-    let agemax = (age - (y) + (x) + (x))
-    let sql = 'SELECT * from users WHERE sexual_orientation = ? AND gender != ? AND age BETWEEN ? AND ? AND id NOT IN (SELECT `match` FROM `like` WHERE uid = ?) AND `image` != ""'
-    filters(sexual, gender, agemin, agemax, sql, req.body.filter, req.body.id, result[0].lat, result[0].ln)
+    if (result[0].age && result[0].image) {
+      let sexual = result[0].sexual_orientation
+      let gender = result[0].gender
+      let age = result[0].age
+      let x = 5
+      let y = 5
+      let agemin = age - (x)
+      let agemax = (age - (y) + (x) + (x))
+      let sql = 'SELECT * from users WHERE sexual_orientation = ? AND gender != ? AND age BETWEEN ? AND ? AND id NOT IN (SELECT `match` FROM `like` WHERE uid = ?) AND `image` != ""'
+      filters(sexual, gender, agemin, agemax, sql, req.body.filter, req.body.id, result[0].lat, result[0].ln)
+    } else {
+      res.send('error')
+      res.end()
+    }
   })
   function filters (sexual, gender, agemin, agemax, sql, filter, id, lat, ln) {
     if (filter === 'AgeA') {
@@ -449,9 +458,8 @@ app.post('/feed/display', (req, res) => {
           res.send()
         }
       } else {
-        // res.send(null)
-        // res.end()
-        console.log('yoooooo')
+        res.send(null)
+        res.end()
       }
     }
   }
@@ -481,12 +489,19 @@ app.post('/like', (req, res) => {
             let sql = 'INSERT INTO `like`(`uid`, `match`, `status`, `token_room`) VALUES (?, ?, 2, ?); UPDATE `like` SET status = 2 WHERE `uid` = ? AND `match` = ?; UPDATE `like` SET token_room = ? WHERE `uid` = ? AND `match` = ?; INSERT INTO `notif` (`uid`, `uid_receiver`, `type`, `seen`) VALUES (?, ?, 3, 0)'
             con.query(sql, [req.body.id, req.body.id_match, token_room, req.body.id_match, req.body.id, token_room, req.body.id_match, req.body.id, req.body.id, req.body.id_match], (err, result) => {
               if (err) throw err
+              else {
+                SendNotifGen(req.body.id_match, 'You have a new match !')
+                SendNotifGen(req.body.id, 'You have a new match !')
+              }
             })
           }
         } else {
           let sql = 'INSERT INTO `like`(`uid`, `match`, `status`, `token_room`) VALUES (?, ?, 1, NULL); INSERT INTO `notif`(`uid`, `uid_receiver`, `type`, `seen`) VALUES (?, ?, 2, 0)'
           con.query(sql, [req.body.id, req.body.id_match, req.body.id, req.body.id_match], (err, result) => {
             if (err) throw err
+            else {
+              SendNotifGen(req.body.id_match, 'You have a new like !')
+            }
           })
         }
       })
@@ -880,27 +895,20 @@ app.post('/search/fetch', (req, res) => {
   }
 
   function fuckingUltimateReq (uid, profil, filter, parameters, block, idme) {
-    // let incomplet = ''
     if (filter === 'null' && uid !== 'null') {
       console.log('yo')
       con.query(uid + profil + parameters + block, (err, results) => {
         if (err) throw err
-        // res.send(results)
-        // res.end()
         finish(results)
       })
     } else if (filter === 'null' && uid === 'null') {
       con.query('SELECT * FROM users WHERE ' + profil + parameters + block, (err, results) => {
         if (err) throw err
-        // res.send(results)
-        // res.end()
         finish(results)
       })
     } else if (filter !== 'null' && uid === 'null') {
       con.query('SELECT * FROM users WHERE ' + profil + parameters + block + filter, (err, results) => {
         if (err) throw err
-        // res.send(results)
-        // res.end()
         finish(results)
       })
     } else {
@@ -929,8 +937,8 @@ app.post('/search/fetch', (req, res) => {
     //     }
     //   }
     // }
-              res.send(results)
-          res.send()
+    res.send(results)
+    res.send()
   }
 })
 
@@ -1033,7 +1041,7 @@ app.post('/notifmess', (req, res) => {
 app.post('/seen', (req, res) => {
   con.query('UPDATE `notif` SET `seen` = 1 WHERE `uid_receiver` = ?', [req.body.uid], (err, result) =>{
     if (err) throw err
-    else{
+    else {
       res.send(null)
       res.end()
     }

@@ -95,7 +95,7 @@ class Search extends React.Component {
     let all = null
     if (info) {
       all = Object.keys(info).map((val, key) =>
-      <FeedCard key={key} val={info[val]} />
+      <FeedCard update={this.onSearch} key={key} val={info[val]} />
     )
   }
     return (

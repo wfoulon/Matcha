@@ -115,7 +115,7 @@ class Connexion extends Component {
                 {this.state.error ? <div style={{textAlign: 'center'}}>Wrong password or Username, please try again !</div> : '' }
                 <div style={{display: 'flex', justifyContent: 'center'}}>
                   <div className="text-center">
-                    <Button href="/inscription" color="cyan">Not Register ?</Button>
+                    <Button href="/" color="cyan">Not Register ?</Button>
                   </div>
                   <div className="text-center">
                     <Button href="/forgot_password" color="cyan">Forgot Password ?</Button>

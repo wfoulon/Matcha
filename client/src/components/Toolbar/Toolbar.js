@@ -8,6 +8,7 @@ import Notif from '../../assets/notification.svg'
 import Search from '../../assets/search.svg'
 import Chat from '../../assets/love.svg'
 import Trending from '../../assets/fire.svg'
+import SnackNotif from './snackNotif'
 
 import './Toolbar.css'
 
@@ -17,7 +18,9 @@ class Toolbar extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      log: false
+      log: false,
+      mess: '',
+      openNotif: false
     }
     this.socket = this.props.socket
   }
@@ -25,9 +28,12 @@ class Toolbar extends Component {
   componentWillMount = (e) => {
     let uid = localStorage.id
     if (uid){
-      this.socket.emit('notif', {uid})
-      this.socket.on('/sendnotif' + uid, data =>{
-        console.log(data)
+      // this.socket.emit('notif', {uid})
+      this.socket.on('sendnotif/' + uid, data => {
+        this.setState({
+          mess: data,
+          openNotif: true
+        })
       })
     }
   }
@@ -59,12 +65,13 @@ class Toolbar extends Component {
 
   render () {
     
-    const {anchorEl } = this.state
+    const {anchorEl, mess, openNotif } = this.state
     const open = Boolean(anchorEl)
     return (
       <div className='Toolbar'>
         {localStorage.id ?
         <div>
+        <SnackNotif mess={mess} open={openNotif} />
           <a href='/feed'><img className='Toolbar-items' src={Trending} alt=''/></a>
           <a href='/chat'><img className='Toolbar-items' src={Chat} alt=''/></a>
           <a href='/notif'><img className='Toolbar-items' src={Notif} alt='' /></a>
